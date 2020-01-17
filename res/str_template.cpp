@@ -4,7 +4,7 @@
 template<cexpr_string S>
 class Equation {
 public:
-	constexpr int operator()(int x, int y) 
+	static constexpr int eval(int x, int y) 
 	{
 		int res{};
 
@@ -24,9 +24,10 @@ public:
 	}
 };
 
+// trust me it works with g++-9.2
 int main()
 {
-	constexpr auto result{ Equation<"x+y">(2, 2) };
+	constexpr auto result{ Equation<"x+y">::eval(2, 2) };
 	std::cout << result << std::endl;
 	return 0;
 }
