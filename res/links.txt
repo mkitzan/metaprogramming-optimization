@@ -1,0 +1,2 @@
+https://www.compile-time.re/meeting-cpp-2019/slides/#/3/4/-1
+https://github.com/hanickadot/compile-time-regular-expressions
