@@ -10,7 +10,7 @@ public:
 	template<typename ...T>
 	static constexpr int eval(T&&... args) 
 	{
-		std::array<int, sizeof...(args)> values{ { args... } };
+		std::array<int, sizeof...(args)> values{ args... };
 		int acc{};
 		char op{};
 		bool start{ true };
