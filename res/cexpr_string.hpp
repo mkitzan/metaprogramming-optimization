@@ -14,6 +14,18 @@ public:
         }
     }
 
+    constexpr cexpr_string(const T* first, const T* last) : cexpr_string{} {
+        if(first > last || last-first > N) {
+            throw std::runtime_error("Insufficient capacity");
+        }
+        
+        for(size_ = 0; first != last; ++size_, ++first) {
+            string_[size_] = *first;
+        }
+        
+        string_[size_] = T{ 0 };
+    }
+
     constexpr cexpr_string(cexpr_string const&) = default;
     constexpr cexpr_string& operator=(cexpr_string const&) = default;
     ~cexpr_string() = default;

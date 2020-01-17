@@ -45,7 +45,7 @@ public:
 // trust me it works with g++-9.2
 int main()
 {
-	constexpr auto result{ Equation<"a+b+a">::eval(2, 3) };
+	constexpr auto result{ Equation<"a+b+a*c">::eval(2, 3, 5) };
 	std::cout << result << std::endl;
 	return 0;
 }
