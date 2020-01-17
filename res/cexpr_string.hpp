@@ -14,7 +14,8 @@ public:
         }
     }
 
-    constexpr cexpr_string(const T* first, const T* last) : cexpr_string{} {
+    constexpr cexpr_string(const T* first, const T* last) : cexpr_string{}
+    {
         if(first > last || last-first > N) {
             throw std::runtime_error("Insufficient capacity");
         }
