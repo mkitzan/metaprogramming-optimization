@@ -1,37 +1,21 @@
+#pragma once
+
 #include <stdexcept>
 
-template<typename T, std::size_t N>
+template<typename CharT, std::size_t N>
 class cexpr_string {
 public:
-    constexpr cexpr_string() : size_{ 0 }, string_{ 0 }
-    {}
+    using value_type = CharT;
 
-    constexpr cexpr_string(const T(&s)[N]) : cexpr_string{}
+    constexpr cexpr_string() : size_{ 0 }, string_{ 0 } {}
+
+    constexpr cexpr_string(const CharT(&s)[N]) : cexpr_string{}
     {
         for(size_ = 0; s[size_]; ++size_)
         {
             string_[size_] = s[size_];
         }
     }
-
-    constexpr cexpr_string(const T* first, const T* last) : cexpr_string{}
-    {
-        if(first > last || last-first > N)
-        {
-            throw std::runtime_error("Insufficient capacity");
-        }
-        
-        for(size_ = 0; first != last; ++size_, ++first)
-        {
-            string_[size_] = *first;
-        }
-        
-        string_[size_] = T{ 0 };
-    }
-
-    constexpr cexpr_string(cexpr_string const&) = default;
-    constexpr cexpr_string& operator=(cexpr_string const&) = default;
-    ~cexpr_string() = default;
 
     constexpr std::size_t capacity() const noexcept
     { 
@@ -43,34 +27,34 @@ public:
         return size_;
     }
 
-    constexpr T* begin() noexcept
+    constexpr CharT* begin() noexcept
     {
         return string_;
     }
-    constexpr const T* begin() const noexcept
+    constexpr const CharT* begin() const noexcept
     {
         return string_;
     }
 
-    constexpr T* end() noexcept
+    constexpr CharT* end() noexcept
     {
         return &string_[size_];
     }
-    constexpr const T* end() const noexcept
+    constexpr const CharT* end() const noexcept
     {
         return &string_[size_];
     }
 
-    constexpr T& operator[](std::size_t i) noexcept
+    constexpr CharT& operator[](std::size_t i) noexcept
     {
         return string_[i];
     }
-    constexpr T const& operator[](std::size_t i) const noexcept
+    constexpr CharT const& operator[](std::size_t i) const noexcept
     {
         return string_[i];
     }
 
-    constexpr void push_back(const T& x)
+    constexpr void push_back(const CharT& x)
     {
         if(size_ == N) 
         {
@@ -78,7 +62,7 @@ public:
         }
 
         string_[size_] = x; 
-        string_[++size_] = T{ 0 }; 
+        string_[++size_] = CharT{ 0 }; 
     }
 
     constexpr void pop_back()
@@ -88,21 +72,44 @@ public:
             throw std::runtime_error("No data");
         }
         
-        string_[--size_] = T{ 0 }; 
+        string_[--size_] = CharT{ 0 }; 
     }
 
     constexpr void clear() noexcept
     {
         while(size_ > 0) 
         {
-            string_[--size_] = T{ 0 };
+            string_[--size_] = CharT{ 0 };
         }
     }
 
+    constexpr CharT* next_token() noexcept
+    {
+        auto curr{ token_ };
+        
+        if (token_ != end())
+        {
+            while(*token_ != CharT{ ' ' })
+            {
+                ++token_;
+            }
+
+            *token_ = CharT{ '\0' };
+            
+            if (token_ != end())
+            {
+                ++token_;
+            }
+        }
+
+        return curr;
+    }
+
 private:
-    T string_[N + 1];
+    CharT string_[N + 1];
     std::size_t size_;
+    CharT* token_{ &string_ };
 };
 
-template<typename T, std::size_t N>
-cexpr_string(const T[N]) -> cexpr_string<T, N>;
+template<typename CharT, std::size_t N>
+cexpr_string(const CharT[N]) -> cexpr_string<CharT, N>;

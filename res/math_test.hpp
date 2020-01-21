@@ -1,17 +1,18 @@
-#include <iostream>
+#pragma once
+
 #include <cstdarg>
 #include <array>
 
 #include "cexpr_string.hpp"
 
 template<cexpr_string S>
-class Equation {
+class cexpr_math {
 public:
 	template<typename ...T>
-	static constexpr int eval(T&&... args) 
+	static constexpr T eval(T&&... args) 
 	{
-		const std::array<int, sizeof...(args)> values{ args... };
-		int acc{};
+		const std::array<T, sizeof...(args)> values{ args... };
+		T acc{};
 		char op{};
 		bool start{ true };
 
@@ -40,12 +41,8 @@ public:
 
 		return acc;
 	}
+
+private:
+
 };
 
-// trust me it works with g++-9.2
-int main()
-{
-	constexpr auto result{ Equation<"a+b+a*c">::eval(2, 3, 5) };
-	std::cout << result << std::endl;
-	return 0;
-}
