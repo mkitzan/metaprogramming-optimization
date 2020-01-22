@@ -3,5 +3,6 @@
 
 int main()
 {
-	std::cout << cexpr_equation<"* + x0 x1 3", int>::eval(2, 5) << std::endl;
+	constexpr auto f{ cexpr_equation<"* + x0 * 50 2 * x1 10", int>::eval(6, 10) };
+	std::cout << f << std::endl;
 }
