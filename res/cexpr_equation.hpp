@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "cexpr_string.hpp"
 #include "cexpr_tokens.hpp"
 #include "templ_valtype.hpp"
@@ -29,7 +31,7 @@ private:
 		
 		if constexpr (isop(*token)) {
 			constexpr auto left{ parse<Pos + 1>() }, right{ parse<left.e0>() };
-			return pair(VT<right.e0 + 1>{}, VT<operation(ValT{}, VT<*token>{}, left.e1, right.e1)>{});
+			return pair(VT<right.e0>{}, VT<operation(ValT{}, VT<*token>{}, left.e1, right.e1)>{});
 		} else if constexpr (*token == 'x') {
 			return pair(VT<Pos + 1>{}, VT<variable(VT<convert<ValT>(token + 1)>{})>{});
 		} else {
