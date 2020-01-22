@@ -15,7 +15,7 @@ public:
 	static constexpr ValT eval(ArgL&&... args) noexcept
 	{		
 		const std::array<ValT, sizeof...(args)> values{ args... };
-		return expression.eval(values);
+		return expression::eval(values);
 	}
 
 private:
@@ -42,6 +42,6 @@ private:
 	static constexpr auto tcount{ token_count(Str.cbegin(), Str.cend()) };
 	static constexpr auto tlength{ token_length(Str.cbegin(), Str.cend()) };
 	static constexpr cexpr_tokens<char, tlength, tcount> tokens{ Str.cbegin(), Str.cend() };
-	
-	static constexpr auto expression{ parse<0>().e1 };
+
+	using expression = decltype(parse<0>().e1);
 };
