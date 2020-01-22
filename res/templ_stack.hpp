@@ -1,7 +1,7 @@
 #pragma once
 
 template<typename... T>
-class templ_stack{};
+struct templ_stack{};
 
 template<typename S, typename... T>
 constexpr auto push(S, templ_stack<T...>) -> templ_stack<S, T...>;
@@ -12,7 +12,7 @@ constexpr auto pop(templ_stack<S, T...>) -> templ_stack<T...>;
 template<typename S, typename... T>
 constexpr auto top(templ_stack<S, T...>) -> S;
 
-class empty{};
+struct empty{};
 constexpr auto top(templ_stack<>) -> empty;
 
 template<typename OldStack, typename RevStack>
