@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include "templ_entity.hpp"
+#include "templ_valtype.hpp"
 
 template<typename ValT, char Op, typename Left, typename Right>
 struct Operator {
@@ -44,16 +44,25 @@ struct Constant {
 };
 
 template<typename ValT, char Op, typename LExpr, typename RExpr>
-constexpr auto operation(Entity<Op>, LExpr, RExpr) -> Operator<ValT, Op, LExpr, RExpr>;
+constexpr auto operation(ValT num, VT<Op> op, LExpr left, RExpr right)
+{
+	return Operator<ValT, Op, LExpr, RExpr>{};
+}
 
 template<typename ValT, ValT VariT>
-constexpr auto variable(Entity<VariT>) -> Variable<ValT, VariT>;
+constexpr auto variable(VT<VariT> num)
+{
+	return Variable<ValT, VariT>{};
+}
 
 template<typename ValT, ValT ConsT>
-constexpr auto constant(Entity<ConsT>) -> Constant<ValT, ConsT>;
+constexpr auto constant(VT<ConsT> num)
+{
+	return Constant<ValT, ConsT>{};
+}
 
 template<typename ValT>
-constexpr ValT convert(char* str)
+constexpr ValT convert(const char* str)
 {
 	constexpr char nul{ '\0' }, dot{ '.' }, zro{ '0' }, min{ '-' };
 	ValT acc{}, sign{ 1 }, scalar{ 10 };

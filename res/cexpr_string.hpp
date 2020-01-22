@@ -5,10 +5,11 @@
 template<typename CharT, std::size_t N>
 class cexpr_string {
 public:
+    constexpr cexpr_string() : size_{ 0 }, string_{ 0 } {}
+
     constexpr cexpr_string(const CharT(&s)[N]) : cexpr_string{}
     {
-        for(size_ = 0; s[size_]; ++size_)
-        {
+        for(size_ = 0; s[size_]; ++size_) {
             string_[size_] = s[size_];
         }
     }
@@ -23,50 +24,36 @@ public:
         return size_;
     }
 
-    constexpr const CharT* begin() const noexcept
+    constexpr CharT* begin() noexcept
+    {
+        return string_;
+    }
+    constexpr const CharT* cbegin() const noexcept
     {
         return string_;
     }
 
-    constexpr const CharT* end() const noexcept
+    constexpr CharT* end() noexcept
+    {
+        return &string_[size_];
+    }
+    constexpr const CharT* cend() const noexcept
     {
         return &string_[size_];
     }
 
+    constexpr CharT& operator[](std::size_t i) noexcept
+    {
+        return string_[i];
+    }
     constexpr CharT const& operator[](std::size_t i) const noexcept
     {
         return string_[i];
     }
 
-    constexpr CharT* next_token() noexcept
-    {
-        const auto curr{ &string_[token_] };
-        
-        if (token_ != capacity())
-        {
-            auto ch{ string_[token_] };
-            while(ch != CharT{ ' ' } || token_ != capacity())
-            {
-                ch = string_[++token_];
-            }
-
-            string_[token_] = CharT{ '\0' };
-            
-            if (token_ != capacity())
-            {
-                ++token_;
-            }
-        }
-
-        return curr;
-    }
-
 private:
-    constexpr cexpr_string() : size_{ 0 }, string_{ 0 }, token_{ 0 } {}
-
     CharT string_[N];
     std::size_t size_;
-    std::size_t token_;
 };
 
 template<typename CharT, std::size_t N>

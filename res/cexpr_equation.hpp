@@ -1,59 +1,45 @@
 #pragma once
 
 #include "cexpr_string.hpp"
-#include "templ_entity.hpp"
+#include "cexpr_tokens.hpp"
+#include "templ_valtype.hpp"
 #include "templ_math.hpp"
-#include "templ_stack.hpp"
+#include "templ_pair.hpp"
 
 template<cexpr_string Str, typename ValT>
 class cexpr_equation {
 public:
 	template<typename ...ArgL>
-	static constexpr ValT eval(ArgL&&... args) 
+	static constexpr ValT eval(ArgL&&... args) noexcept
 	{		
 		const std::array<ValT, sizeof...(args)> values{ args... };
 		return expression.eval(values);
 	}
 
 private:
-/*
-	template<typename Stack>
-	static constexpr auto build(Stack s)
-	{
-		constexpr auto token{ Str.next_token() };
-
-		if constexpr (token == Str.end()) {
-			return s;
-		} else {
-			return build(push(token, s));
-		}
-	}
-
-	static constexpr auto tokenize()
-	{
-		return reverse(build(templ_stack{}), templ_stack{});
-	}
-*/
-
-	static constexpr bool isop(char ch)
+	static constexpr bool isop(char ch) noexcept
 	{
 		return ch == '+' || ch == '-' || ch == '*' || ch == '/';
 	}
 
-	static constexpr auto parse()
+	template<std::size_t Pos>
+	static constexpr auto parse() noexcept
 	{
-		// Need the Stack or TokenStream to be "global"
-		constexpr auto token{ Str.next_token() };
-
+		constexpr auto token{ tokens[Pos].cbegin() };
+		
 		if constexpr (isop(*token)) {
-			return operation(Entity<*token>{}, parse(), parse());
+			constexpr auto left{ parse<Pos + 1>() }, right{ parse<left.e0>() };
+			return pair(VT<right.e0 + 1>{}, VT<operation(ValT{}, VT<*token>{}, left.e1, right.e1)>{});
 		} else if constexpr (*token == 'x') {
-			return variable(Entity<convert<ValT>(token + 1)>{});
+			return pair(VT<Pos + 1>{}, VT<variable(VT<convert<ValT>(token + 1)>{})>{});
 		} else {
-			return constant(Entity<convert<ValT>(token)>{});
+			return pair(VT<Pos + 1>{}, VT<constant(VT<convert<ValT>(token)>{})>{});
 		}
 	}
 
-	//static constexpr auto expression{ parse(tokenize()) };
-	static constexpr auto expression{ parse() };
+	static constexpr auto tcount{ token_count(Str.cbegin(), Str.cend()) };
+	static constexpr auto tlength{ token_length(Str.cbegin(), Str.cend()) };
+	static constexpr cexpr_tokens<char, tlength, tcount> tokens{ Str.cbegin(), Str.cend() };
+	
+	static constexpr auto expression{ parse<0>().e1 };
 };
