@@ -89,7 +89,7 @@ public:
         
         if (token_ != end())
         {
-            while(*token_ != CharT{ ' ' })
+            while(*token_ != CharT{ ' ' } || *token_ != CharT{ '\0' })
             {
                 ++token_;
             }
