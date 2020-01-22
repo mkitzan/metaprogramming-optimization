@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
 
 #include "templ_valtype.hpp"
 

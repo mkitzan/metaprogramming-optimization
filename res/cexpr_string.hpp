@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 template<typename CharT, std::size_t N>
 class cexpr_string {
 public:

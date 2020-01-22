@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
 
 #include "cexpr_string.hpp"
 
@@ -9,8 +10,10 @@ class cexpr_tokens {
 public:
 	using token_string = cexpr_string<CharT, Tl>;
 
-	constexpr cexpr_tokens(const CharT* begin, const CharT* end) : tokens_{}
+	template<std::size_t N>
+	constexpr cexpr_tokens(cexpr_string<CharT, N> const& cs) : tokens_{}
 	{
+		auto begin{ cs.cbegin() }, end{ cs.cend() };
 		std::size_t pos{}, i{};
 
 		while (begin < end) {
@@ -70,9 +73,10 @@ private:
 	std::array<token_string, Tn> tokens_;
 };
 
-template<typename CharT>
-constexpr std::size_t token_count(const CharT* begin, const CharT* end)
+template<typename CharT, std::size_t N>
+constexpr std::size_t tcount(cexpr_string<CharT, N> const& cs)
 {
+	auto begin{ cs.cbegin() }, end{ cs.cend() };
 	std::size_t count{ 1 };
 
 	while (begin < end) {
@@ -85,9 +89,10 @@ constexpr std::size_t token_count(const CharT* begin, const CharT* end)
 	return count;
 }
 
-template<typename CharT>
-constexpr std::size_t token_length(const CharT* begin, const CharT* end)
+template<typename CharT, std::size_t N>
+constexpr std::size_t tlength(cexpr_string<CharT, N> const& cs)
 {
+	auto begin{ cs.cbegin() }, end{ cs.cend() };
 	std::size_t max{ 1 }, curr{ 1 };
 
 	while (begin < end) {

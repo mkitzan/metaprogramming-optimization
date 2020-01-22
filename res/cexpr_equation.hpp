@@ -39,9 +39,7 @@ private:
 		}
 	}
 
-	static constexpr auto tcount{ token_count(Str.cbegin(), Str.cend()) };
-	static constexpr auto tlength{ token_length(Str.cbegin(), Str.cend()) };
-	static constexpr cexpr_tokens<char, tlength, tcount> tokens{ Str.cbegin(), Str.cend() };
+	static constexpr cexpr_tokens<char, tlength(Str), tcount(Str)> tokens{ Str };
 
 	using expression = decltype(parse<0>().e1);
 };
