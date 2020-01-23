@@ -30,8 +30,8 @@ private:
 		constexpr auto token{ tokens[Pos].cbegin() };
 		
 		if constexpr (isop(*token)) {
-			constexpr auto left{ parse<Pos + 1>() }, right{ parse<left.e0>() };
-			return pair(VT<right.e0>{}, VT<operation(ValT{}, VT<*token>{}, left.e1, right.e1)>{});
+			constexpr auto left{ parse<Pos + 1>() }, right{ parse<left.first>() };
+			return pair(VT<right.first>{}, VT<operation(ValT{}, VT<*token>{}, left.second, right.second)>{});
 		} else if constexpr (*token == 'x') {
 			return pair(VT<Pos + 1>{}, VT<variable(VT<convert<ValT>(token + 1)>{})>{});
 		} else {
@@ -41,5 +41,5 @@ private:
 
 	static constexpr cexpr_tokens<char, tlength(Str), tcount(Str)> tokens{ Str };
 
-	using expression = decltype(parse<0>().e1);
+	using expression = decltype(parse<0>().second);
 };

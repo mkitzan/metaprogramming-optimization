@@ -2,10 +2,10 @@
 
 #include "templ_valtype.hpp"
 
-template<auto Elem0, auto Elem1>
+template<auto E0, auto E1>
 struct Pair {
-	static constexpr auto e0{ Elem0 };
-	static constexpr auto e1{ Elem1 };
+	static constexpr auto first{ E0 };
+	static constexpr auto second{ E1 };
 };
 
 template<typename Type0, Type0 V0, typename Type1, Type1 V1>
