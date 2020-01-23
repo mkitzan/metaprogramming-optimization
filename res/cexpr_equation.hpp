@@ -8,6 +8,12 @@
 #include "templ_math.hpp"
 #include "templ_pair.hpp"
 
+// Macros to improve readability by aliasing the operations of generic template entities
+#define NODE(Pair) (Pair.second)
+#define POS(Pair) (Pair.first)
+#define TYPE_WRAP(Value) (VT<Value>{})
+#define TREE_EXPR(Token, Node) (pair(TYPE_WRAP(Token), TYPE_WRAP(Node)))
+
 template<cexpr_string Str, typename ValT>
 class cexpr_equation {
 public:
@@ -29,13 +35,32 @@ private:
 	{
 		constexpr auto token{ tokens[Pos].cbegin() };
 		
-		if constexpr (isop(*token)) {
-			constexpr auto left{ parse<Pos + 1>() }, right{ parse<left.first>() };
-			return pair(VT<right.first>{}, VT<operation(ValT{}, VT<*token>{}, left.second, right.second)>{});
-		} else if constexpr (*token == 'x') {
-			return pair(VT<Pos + 1>{}, VT<variable(VT<convert<ValT>(token + 1)>{})>{});
-		} else {
-			return pair(VT<Pos + 1>{}, VT<constant(VT<convert<ValT>(token)>{})>{});
+		if constexpr (isop(*token))
+		{
+			// Parse left and right expression tree nodes
+			constexpr auto left{ parse<Pos + 1>() }, right{ parse<POS(left)>() };
+
+			// Next token position and expression tree node to propogate up
+			constexpr auto token_pos{ POS(right) };
+			constexpr auto tree_node{ operation(ValT{}, TYPE_WRAP(*token), NODE(left), NODE(right)) };
+
+			return TREE_EXPR(token_pos, tree_node);
+		}
+		else if constexpr (*token == 'x')
+		{		
+			// Next token position and expression tree node to propogate up
+			constexpr auto token_pos{ Pos + 1 };
+			constexpr auto tree_node{ variable(TYPE_WRAP(convert<ValT>(token + 1))) };
+
+			return TREE_EXPR(token_pos, tree_node);
+		}
+		else
+		{
+			// Next token position and expression tree node to propogate up
+			constexpr auto token_pos{ Pos + 1 };
+			constexpr auto tree_node{ constant(TYPE_WRAP(convert<ValT>(token))) };
+
+			return TREE_EXPR(token_pos, tree_node);
 		}
 	}
 

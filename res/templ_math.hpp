@@ -12,13 +12,20 @@ struct Operator {
 	{
 		ValT result{};
 
-		if constexpr (Op == '+') {
+		if constexpr (Op == '+')
+		{
 			result = Left::eval(args) + Right::eval(args);
-		} else if constexpr(Op == '-') {
+		}
+		else if constexpr(Op == '-')
+		{
 			result = Left::eval(args) - Right::eval(args);
-		} else if constexpr(Op == '*') {
+		}
+		else if constexpr(Op == '*')
+		{
 			result = Left::eval(args) * Right::eval(args);
-		} else if constexpr(Op == '/') {
+		}
+		else if constexpr(Op == '/')
+		{
 			result = Left::eval(args) / Right::eval(args);
 		}
 
@@ -68,21 +75,25 @@ constexpr ValT convert(const char* str)
 	constexpr char nul{ '\0' }, dot{ '.' }, zro{ '0' }, min{ '-' };
 	ValT acc{}, sign{ 1 }, scalar{ 10 };
 
-	if (*str == min) {
+	if (*str == min)
+	{
 		sign = -1;
 		++str;
 	}
 
-	while (*str != nul && *str != dot) {
+	while (*str != nul && *str != dot)
+	{
 		acc = (acc * scalar) + (*str - zro);
 		++str;
 	}
 
-	if (*str == dot) {
+	if (*str == dot)
+	{
 		scalar = 1;
 		++str;
 
-		while(*str != nul) {
+		while(*str != nul)
+		{
 			acc += (*str - zro) * (scalar /= ValT{ 10 });
 			++str;
 		}

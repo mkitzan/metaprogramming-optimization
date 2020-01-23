@@ -16,12 +16,16 @@ public:
 		auto begin{ cs.cbegin() }, end{ cs.cend() };
 		std::size_t pos{}, i{};
 
-		while (begin < end) {
-			if (*begin == CharT{ ' ' }) {
+		while (begin < end)
+		{
+			if (*begin == CharT{ ' ' })
+			{
 				tokens_[pos][i] = CharT{ '\0' };
 				++pos;
 				i = 0;
-			} else {
+			}
+			else
+			{
 				tokens_[pos][i] = *begin;
 				++i;
 			}
@@ -79,8 +83,10 @@ constexpr std::size_t tcount(cexpr_string<CharT, N> const& cs)
 	auto begin{ cs.cbegin() }, end{ cs.cend() };
 	std::size_t count{ 1 };
 
-	while (begin < end) {
-		if (*begin == CharT{ ' ' }) {
+	while (begin < end)
+	{
+		if (*begin == CharT{ ' ' })
+		{
 			++count;
 		}
 		++begin;
@@ -95,18 +101,23 @@ constexpr std::size_t tlength(cexpr_string<CharT, N> const& cs)
 	auto begin{ cs.cbegin() }, end{ cs.cend() };
 	std::size_t max{ 1 }, curr{ 1 };
 
-	while (begin < end) {
-		if (*begin == CharT{ ' ' } && curr > max) {
+	while (begin < end)
+	{
+		if (*begin == CharT{ ' ' } && curr > max)
+		{
 			max = curr;
 			curr = 1;
-		} else {
+		}
+		else
+		{
 			++curr;
 		}
 
 		++begin;
 	}
 
-	if (curr > max) {
+	if (curr > max)
+	{
 		max = curr;
 	}
 

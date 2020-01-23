@@ -9,7 +9,8 @@ public:
 
     constexpr cexpr_string(const CharT(&s)[N]) : cexpr_string{}
     {
-        for(size_ = 0; s[size_]; ++size_) {
+        for(size_ = 0; s[size_]; ++size_)
+        {
             string_[size_] = s[size_];
         }
     }
