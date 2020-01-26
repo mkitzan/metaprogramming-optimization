@@ -98,7 +98,7 @@ namespace cexpr
 		static constexpr auto parse_mul_div() noexcept
 		{
 			// Parse left side of the expression and recurse expression
-			auto left{ parse_brk_trm<Pos>() };
+			constexpr auto left{ parse_brk_trm<Pos>() };
 
 			// Recursively loop on the multiply/divide sub-expression
 			return recurse_mul_div<decltype(left)>();
@@ -131,7 +131,7 @@ namespace cexpr
 		static constexpr auto parse_add_sub() noexcept
 		{
 			// Parse left side of the sub-expression
-			auto left{ parse_mul_div<Pos>() };
+			constexpr auto left{ parse_mul_div<Pos>() };
 
 			// Recursively loop on the add/subtraction expression
 			return recurse_add_sub<decltype(left)>();
