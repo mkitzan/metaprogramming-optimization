@@ -2,10 +2,12 @@
 
 #include <cstddef>
 
-namespace cexpr {
+namespace cexpr
+{
 
     template<typename CharT, std::size_t N>
-    class string {
+    class string
+    {
     public:
         constexpr string() : size_{ 0 }, string_{ 0 } {}
 

@@ -16,10 +16,12 @@ using namespace templ;
 #define TYPE_WRAP(Value) (VT<Value>{})
 #define TREE_EXPR(Token, Node) (pair(TYPE_WRAP(Token), TYPE_WRAP(Node)))
 
-namespace cexpr {
+namespace cexpr 
+{
 
 	template<string Str, typename ValT>
-	class prefix {
+	class prefix
+	{
 	public:
 		template<typename ...ArgL>
 		static constexpr ValT eval(ArgL&&... args) noexcept

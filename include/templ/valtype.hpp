@@ -1,10 +1,12 @@
 #pragma once
 
-namespace templ {
+namespace templ
+{
 
 	// Template shim used to convert a value into a type
 	template<auto Val>
-	struct VT {
+	struct VT
+	{
 		static constexpr auto val{ Val };
 	};
 

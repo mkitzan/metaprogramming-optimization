@@ -5,10 +5,12 @@
 
 #include "templ/valtype.hpp"
 
-namespace templ {
+namespace templ
+{
 
 	template<typename ValT, char Op, typename Left, typename Right>
-	struct Operator {
+	struct Operator
+	{
 		template<std::size_t N>
 		static constexpr ValT eval(std::array<ValT, N> const& args)
 		{
@@ -36,7 +38,8 @@ namespace templ {
 	};
 
 	template<typename ValT, ValT Pos>
-	struct Variable {
+	struct Variable
+	{
 		template<std::size_t N>
 		static constexpr ValT eval(std::array<ValT, N> const& args)
 		{
@@ -45,7 +48,8 @@ namespace templ {
 	};
 
 	template<typename ValT, ValT Const>
-	struct Constant {
+	struct Constant
+	{
 		template<std::size_t N>
 		static constexpr ValT eval(std::array<ValT, N> const& args)
 		{

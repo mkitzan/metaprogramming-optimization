@@ -2,10 +2,12 @@
 
 #include "valtype.hpp"
 
-namespace templ {
+namespace templ
+{
 
 	template<auto E0, auto E1>
-	struct Pair {
+	struct Pair
+	{
 		static constexpr auto first{ E0 };
 		static constexpr auto second{ E1 };
 	};

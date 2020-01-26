@@ -5,10 +5,12 @@
 
 #include "cexpr/string.hpp"
 
-namespace cexpr {
+namespace cexpr
+{
 
 	template<typename CharT, std::size_t Tl, std::size_t Tn>
-	class tokens {
+	class tokens
+	{
 	public:
 		using token_string = string<CharT, Tl>;
 
@@ -126,4 +128,4 @@ namespace cexpr {
 		return max;
 	}
 
-}
+} // namespace cexpr
