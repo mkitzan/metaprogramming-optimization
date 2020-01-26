@@ -107,9 +107,12 @@ namespace cexpr
 
 		while (begin < end)
 		{
-			if (*begin == CharT{ ' ' } && curr > max)
+			if (*begin == CharT{ ' ' })
 			{
-				max = curr;
+				if (curr > max)
+				{
+					max = curr;
+				}
 				curr = 1;
 			}
 			else

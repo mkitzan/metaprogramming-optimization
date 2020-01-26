@@ -14,7 +14,7 @@ using namespace templ;
 #define NODE(Pair) (Pair.second)
 #define POS(Pair) (Pair.first)
 #define TYPE_WRAP(Value) (VT<Value>{})
-#define TREE_EXPR(Token, Node) (pair(TYPE_WRAP(Token), TYPE_WRAP(Node)))
+#define TREE_EXPR(Pos, Node) (pair(TYPE_WRAP(Pos), TYPE_WRAP(Node)))
 
 namespace cexpr 
 {
