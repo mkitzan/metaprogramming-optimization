@@ -1,0 +1,14 @@
+January
+	Week 1
+		Template expression tree, two variables (bbird)
+		Compile time infix parser, no variables
+	Week 2
+		Found ctre (compile time regular expression) on github
+		String literal template param
+		Constexpr string
+		Learned C++ variadic and fold expression
+	Week 3
+		g++ 9.2.0 build
+		Pure template math, pair, and value shim
+		Constexpr tokenizer
+		Compile time string literal prefix parser, variadic variables
