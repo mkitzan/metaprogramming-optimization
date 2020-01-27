@@ -12,3 +12,6 @@ January
 		Pure template math, pair, and value shim
 		Constexpr tokenizer
 		Compile time string literal prefix parser, variadic variables
+	Week 4
+		Python recursive descent infix parser (bbird)
+		Compile time string literal infix parser, variadic variables
