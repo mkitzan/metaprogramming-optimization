@@ -19,11 +19,11 @@ using namespace templ;
 namespace cexpr 
 {
 
-	template<string Str, typename ValT>
+	template <string Str, typename ValT>
 	class prefix
 	{
 	public:
-		template<typename ...ArgL>
+		template <typename ...ArgL>
 		static constexpr ValT eval(ArgL&&... args) noexcept
 		{		
 			const std::array<ValT, sizeof...(args)> values{ args... };
@@ -36,7 +36,7 @@ namespace cexpr
 			return ch == '+' || ch == '-' || ch == '*' || ch == '/';
 		}
 
-		template<std::size_t Pos>
+		template <std::size_t Pos>
 		static constexpr auto parse() noexcept
 		{
 			constexpr auto token{ tokens_[Pos].cbegin() };

@@ -5,7 +5,7 @@
 namespace cexpr
 {
 
-    template<typename CharT, std::size_t N>
+    template <typename CharT, std::size_t N>
     class string
     {
     public:
@@ -56,12 +56,26 @@ namespace cexpr
             return string_[i];
         }
 
+        template <typename OtherCharT, std::size_t OtherN>
+        constexpr bool operator==(string<OtherCharT, OtherN> const& other) const
+        {
+            if constexpr (N != OtherN)
+            {
+                return false;
+            }
+
+            std::size_t i{};
+            for (; i < N && string_[i] == other[i]; ++i);
+
+            return i == N;
+        }
+
     private:
         CharT string_[N];
         std::size_t size_;
     };
 
-    template<typename CharT, std::size_t N>
+    template <typename CharT, std::size_t N>
     string(const CharT[N]) -> string<CharT, N>;
 
 } // namespace cexpr

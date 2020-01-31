@@ -8,10 +8,10 @@
 namespace templ
 {
 
-	template<typename ValT, char Op, typename Left, typename Right>
+	template <typename ValT, char Op, typename Left, typename Right>
 	struct Operator
 	{
-		template<std::size_t N>
+		template <std::size_t N>
 		static constexpr ValT eval(std::array<ValT, N> const& args)
 		{
 			ValT result{};
@@ -37,45 +37,45 @@ namespace templ
 		}
 	};
 
-	template<typename ValT, ValT Pos>
+	template <typename ValT, ValT Pos>
 	struct Variable
 	{
-		template<std::size_t N>
+		template <std::size_t N>
 		static constexpr ValT eval(std::array<ValT, N> const& args)
 		{
 			return args[Pos];
 		}
 	};
 
-	template<typename ValT, ValT Const>
+	template <typename ValT, ValT Const>
 	struct Constant
 	{
-		template<std::size_t N>
+		template <std::size_t N>
 		static constexpr ValT eval(std::array<ValT, N> const& args)
 		{
 			return Const;
 		}
 	};
 
-	template<typename ValT, char Op, typename LExpr, typename RExpr>
+	template <typename ValT, char Op, typename LExpr, typename RExpr>
 	constexpr auto operation(ValT num, VT<Op> op, LExpr left, RExpr right)
 	{
 		return Operator<ValT, Op, LExpr, RExpr>{};
 	}
 
-	template<typename ValT, ValT VariT>
+	template <typename ValT, ValT VariT>
 	constexpr auto variable(VT<VariT> num)
 	{
 		return Variable<ValT, VariT>{};
 	}
 
-	template<typename ValT, ValT ConsT>
+	template <typename ValT, ValT ConsT>
 	constexpr auto constant(VT<ConsT> num)
 	{
 		return Constant<ValT, ConsT>{};
 	}
 
-	template<typename ValT>
+	template <typename ValT>
 	constexpr ValT convert(const char* str)
 	{
 		constexpr char nul{ '\0' }, dot{ '.' }, zro{ '0' }, min{ '-' };

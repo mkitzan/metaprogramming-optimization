@@ -19,11 +19,11 @@ using namespace templ;
 namespace cexpr
 {
 
-	template<string Str, typename ValT>
+	template <string Str, typename ValT>
 	class infix
 	{
 	public:
-		template<typename ...ArgL>
+		template <typename ...ArgL>
 		static constexpr ValT eval(ArgL&&... args) noexcept
 		{		
 			const std::array<ValT, sizeof...(args)> values{ args... };
@@ -41,7 +41,7 @@ namespace cexpr
 			return ch == '+' || ch == '-';
 		}
 
-		template<std::size_t Pos>
+		template <std::size_t Pos>
 		static constexpr auto parse_brk_trm() noexcept
 		{
 			constexpr auto token{ tokens_[Pos].cbegin() };
@@ -71,7 +71,7 @@ namespace cexpr
 			}
 		}
 
-		template<typename Left>
+		template <typename Left>
 		static constexpr auto recurse_mul_div() noexcept
 		{
 			constexpr auto left{ Left{} };
@@ -94,7 +94,7 @@ namespace cexpr
 			}
 		}
 
-		template<std::size_t Pos>
+		template <std::size_t Pos>
 		static constexpr auto parse_mul_div() noexcept
 		{
 			// Parse left side of the expression and recurse expression
@@ -104,7 +104,7 @@ namespace cexpr
 			return recurse_mul_div<decltype(left)>();
 		}
 
-		template<typename Left>
+		template <typename Left>
 		static constexpr auto recurse_add_sub() noexcept
 		{
 			constexpr auto left{ Left{} };
@@ -127,7 +127,7 @@ namespace cexpr
 			}
 		}
 
-		template<std::size_t Pos>
+		template <std::size_t Pos>
 		static constexpr auto parse_add_sub() noexcept
 		{
 			// Parse left side of the sub-expression
