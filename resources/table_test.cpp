@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "sql/column.hpp"
 #include "sql/schema.hpp"
@@ -8,12 +9,20 @@ int main()
 {
 	sql::schema<
 		sql::column<"id", int>, 
-		sql::column<"account", double>, 
+		sql::column<"balance", double>, 
 		sql::column<"name", std::string>
-	> table{};
+	> table{ 1914, 1029.38, std::string{ "g++" } };
 	
-	table.insert(42, 12345.67, std::string{ "me" });
-	auto const& column{ select<"account">(table) };
+	std::vector<int> ids{ 1985, 2020 };
+	std::vector<double> balances{ 1357.24, 9135.68 };
+	std::vector<std::string> names{ "needs", "concepts" };
 
-	std::cout << column.at(0) << std::endl;
+	table.insert(ids, balances, names);
+
+	auto const& column{ select<"name">(table) };
+
+	for (auto const& name : column)
+	{
+		std::cout << name << '\n';
+	}
 }
