@@ -4,7 +4,7 @@
 
 namespace sql
 {
-	
+
 	template <cexpr::string N, typename T>
 	struct column
 	{

@@ -18,11 +18,9 @@ int main()
 	std::vector<std::string> names{ "needs", "concepts" };
 
 	table.insert(ids, balances, names);
-
-	auto const& column{ select<"name">(table) };
-
-	for (auto const& name : column)
+	
+	for (auto const& [id, balance, name] : table)
 	{
-		std::cout << name << '\n';
+		std::cout << id << '\t' << balance << '\t' << name << '\n';
 	}
 }

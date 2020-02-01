@@ -6,13 +6,16 @@
 
 #include "cexpr/string.hpp"
 #include "sql/column.hpp"
+#include "sql/row.hpp"
 
 namespace sql
 {
-	
+
 	template <typename Col, typename... Cols>
 	class schema
 	{
+		using col_type = typename Col::Type;
+		using row_type = row<Col, Cols...>;
 	public:
 		schema() : column_{}, next_{}
 		{}
@@ -29,66 +32,78 @@ namespace sql
 			insert(col, cols...);
 		}
 
-		// friend to circumvent g++9.2 constexpr obj template param parsing bug
-		template <cexpr::string Key>
-		friend constexpr auto const& select(schema const& table)
-		{
-			if constexpr (table.name_ == Key)
-			{
-				return table.column_;
-			}
-			else
-			{
-				return select<Key>(table.next_);
-			}
-		}
-
 		template <typename... Ts>
-		auto insert(typename Col::Type const& val, Ts const&... vals)
+		auto insert(col_type const& val, Ts const&... vals)
 		{
 			column_.push_back(val);
 
 			if constexpr (!last())
 			{
-				return next_.insert(vals...);
+				next_.insert(vals...);
 			}
 		}
 
 		template <typename... Ts>
-		auto insert(typename Col::Type&& val, Ts&&... vals)
+		auto insert(col_type&& val, Ts&&... vals)
 		{
 			column_.push_back(val);
 
 			if constexpr (!last())
 			{
-				return next_.insert(vals...);
+				next_.insert(vals...);
 			}
 		}
 
-		template <typename T, typename... Ts>
-		void insert(std::vector<T> const& val, Ts const&... vals)
+		template <typename... Ts>
+		void insert(std::vector<col_type> const& val, Ts const&... vals)
 		{
 			column_.insert(std::end(column_), std::cbegin(val), std::cend(val));
 
 			if constexpr (!last())
 			{
-				return next_.insert(vals...);
+				next_.insert(vals...);
 			}
 		}
 
-		template <typename T, typename... Ts>
-		void insert(std::vector<T>&& val, Ts&&... vals)
+		template <typename... Ts>
+		void insert(std::vector<col_type>&& val, Ts&&... vals)
 		{
 			column_.insert(std::end(column_), std::begin(val), std::end(val));
 
 			if constexpr (!last())
 			{
-				return next_.insert(vals...);
+				next_.insert(vals...);
 			}
 		}
-		
+
+		row_type begin() const
+		{
+			row_type row{};
+			row.it_ = column_.cbegin();
+
+			if constexpr (!last())
+			{
+				row.next_ = next_.begin();
+			}
+			
+			return row;
+		}
+
+		row_type end() const
+		{
+			row_type row{};
+			row.it_ = column_.cend();
+
+			if constexpr (!last())
+			{
+				row.next_ = next_.end();
+			}
+			
+			return row;
+		}
+
 	private:
-		struct end
+		struct null_schema
 		{};
 
 		static inline constexpr bool last()
@@ -100,7 +115,7 @@ namespace sql
 		{
 			if constexpr (last()) 
 			{
-				return end{};
+				return null_schema{};
 			} 
 			else
 			{
@@ -108,11 +123,10 @@ namespace sql
 			}
 		}
 
-		using next = decltype(resolve());
+		using next_type = decltype(resolve());
 
-		static constexpr auto name_{ Col::Name };
-		std::vector<typename Col::Type> column_;
-		next next_;
+		std::vector<col_type> column_;
+		next_type next_;
 	};
 
 } // namespace sql
