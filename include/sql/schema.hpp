@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iterator>
-#include <type_traits>
 #include <vector>
 
 #include "cexpr/string.hpp"
@@ -14,7 +12,7 @@ namespace sql
 	template <typename Col, typename... Cols>
 	class schema
 	{
-		using col_type = typename Col::Type;
+		using col_type = typename Col::type;
 		using row_type = row<Col, Cols...>;
 	public:
 		schema() : column_{}, next_{}

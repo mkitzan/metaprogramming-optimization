@@ -5,11 +5,11 @@
 namespace sql
 {
 
-	template <cexpr::string N, typename T>
+	template <cexpr::string Name, typename Type>
 	struct column
 	{
-		static constexpr auto Name = N;
-		using Type = T;
+		static constexpr auto name{ Name };
+		using type = Type;
 	};
 
 } // namespace sql

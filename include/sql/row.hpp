@@ -11,23 +11,8 @@ namespace sql
 	template <typename Col, typename... Cols>
 	class row
 	{
-		using row_iterator = std::vector<typename Col::Type>::const_iterator;
+		using row_iterator = std::vector<typename Col::type>::const_iterator;
 	public:
-		// user friendly function to query row elements by column name
-		// friend to circumvent g++9.2 constexpr obj template param parsing bug
-		template <cexpr::string Name>
-		friend constexpr auto const& get(row const& r)
-		{
-			if constexpr (Col::Name == Name)
-			{
-				return *r.it_;
-			}
-			else
-			{
-				return get<Name>(r.next_);
-			}
-		}
-
 		inline bool operator==(row const& r) const
 		{
 			if constexpr (!last())
@@ -56,7 +41,8 @@ namespace sql
 			return *this;
 		}
 
-		inline row const& operator*()
+		// shim function used by structured binding declaration
+		inline row const& operator*() const
 		{
 			return *this;
 		}
@@ -64,6 +50,9 @@ namespace sql
 	private:		
 		template <typename, typename...>
 		friend class schema;
+
+		template <cexpr::string Name, typename Row>
+		friend auto const& get(Row const& r);
 
 		template <std::size_t Pos, typename Row>
 		friend auto const& get(Row const& r);
@@ -90,10 +79,27 @@ namespace sql
 
 		using next_type = decltype(resolve());
 
+		static constexpr auto name{ Col::name };
+
 		row_iterator it_;
 		next_type next_;
 	};
 
+	// user function to query row elements by column name
+	template <cexpr::string Name, typename Row>
+	auto const& get(Row const& r)
+	{
+		if constexpr (Row::name == Name)
+		{
+			return *(r.it_);
+		}
+		else
+		{
+			return get<Name>(r.next_);
+		}
+	}
+
+	// compiler function used by structured binding declaration
 	template <std::size_t Pos, typename Row>
 	auto const& get(Row const& r)
 	{
