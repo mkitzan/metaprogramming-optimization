@@ -17,7 +17,7 @@ int main()
 
 	std::cout << sql::get<"id">(row_iter) << '\t'
 	          << sql::get<"name">(row_iter) << '\t'
-			  << sql::get<"balance">(row_iter) << '\n';
+	          << sql::get<"balance">(row_iter) << '\n';
 
 	std::vector<int> ids{ 1985, 2020 };
 	std::vector<std::string> names{ "needs", "concepts" };
