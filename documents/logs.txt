@@ -15,3 +15,6 @@ January
 	Week 4
 		Python recursive descent infix parser (bbird)
 		Compile time string literal infix parser, variadic variables
+	Week 5
+		Recursive template schema and row classes
+		Support structured binding declarations and range loop
