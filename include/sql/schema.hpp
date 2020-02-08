@@ -11,9 +11,10 @@ namespace sql
 	template <typename... Cols>
 	class schema
 	{
+	public:
 		using row_type = row<Cols...>;
 		using const_iterator = std::vector<row_type>::const_iterator;
-	public:
+
 		schema() = default;
 
 		template <typename... Ts>

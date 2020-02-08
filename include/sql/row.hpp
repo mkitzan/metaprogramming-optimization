@@ -39,10 +39,10 @@ namespace sql
 		friend class schema;
 
 		template <cexpr::string Name, typename Row>
-		friend auto const& get(Row const& r);
+		friend constexpr auto const& get(Row const& r);
 
 		template <std::size_t Pos, typename Row>
-		friend auto const& get(Row const& r);
+		friend constexpr auto const& get(Row const& r);
 
 		struct null_row
 		{};
@@ -64,6 +64,19 @@ namespace sql
 			}
 		}
 
+		template <cexpr::string Name, typename T>
+		constexpr void set(T const& value)
+		{
+			if constexpr (name == Name)
+			{
+				value_ = value;
+			}
+			else
+			{
+				return next_.set(value);
+			}
+		}
+
 		using next_type = decltype(resolve());
 
 		static constexpr auto name{ Col::name };
@@ -74,7 +87,7 @@ namespace sql
 
 	// user function to query row elements by column name
 	template <cexpr::string Name, typename Row>
-	auto const& get(Row const& r)
+	constexpr auto const& get(Row const& r)
 	{
 		if constexpr (Row::name == Name)
 		{
@@ -88,7 +101,7 @@ namespace sql
 
 	// compiler function used by structured binding declaration
 	template <std::size_t Pos, typename Row>
-	auto const& get(Row const& r)
+	constexpr auto const& get(Row const& r)
 	{
 		if constexpr (Pos == 0)
 		{
