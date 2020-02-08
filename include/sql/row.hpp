@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "cexpr/string.hpp"
-#include "sql/schema.hpp"
 
 namespace sql
 {
@@ -11,16 +10,22 @@ namespace sql
 	template <typename Col, typename... Cols>
 	class row
 	{
-		using row_iterator = std::vector<typename Col::type>::const_iterator;
+		using col_type = typename Col::type;
 	public:
+		row() = default;
+
+		template <typename... Ts>
+		row(col_type const& val, Ts const&... vals) : value_{ val }, next_{ vals... }
+		{}
+
 		inline bool operator==(row const& r) const
 		{
 			if constexpr (!last())
 			{
-				return (next_ == r.next_) && (it_ == r.it_);
+				return (value_ == r.value) && (next_ == r.next_);
 			} else
 			{
-				return (it_ == r.it_);
+				return (next_ == r.next_);
 			}
 		}
 
@@ -28,27 +33,9 @@ namespace sql
 		{
 			return !(*this == r);
 		}
-
-		inline row& operator++()
-		{
-			++it_;
-
-			if constexpr (!last())
-			{
-				++next_;
-			}
-
-			return *this;
-		}
-
-		// shim function used by structured binding declaration
-		inline row const& operator*() const
-		{
-			return *this;
-		}
-
+	
 	private:		
-		template <typename, typename...>
+		template <typename...>
 		friend class schema;
 
 		template <cexpr::string Name, typename Row>
@@ -81,7 +68,7 @@ namespace sql
 
 		static constexpr auto name{ Col::name };
 
-		row_iterator it_;
+		col_type value_;
 		next_type next_;
 	};
 
@@ -91,7 +78,7 @@ namespace sql
 	{
 		if constexpr (Row::name == Name)
 		{
-			return *(r.it_);
+			return r.value_;
 		}
 		else
 		{
@@ -105,7 +92,7 @@ namespace sql
 	{
 		if constexpr (Pos == 0)
 		{
-			return *(r.it_);
+			return r.value_;
 		}
 		else
 		{

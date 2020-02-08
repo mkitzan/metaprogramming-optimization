@@ -13,11 +13,11 @@ int main()
 		sql::column<"balance", double>
 	> table{ 1914, std::string{ "g++" }, 1029.38 };
 
-	auto row_iter{ table.begin() };
+	auto row{ *table.begin() };
 
-	std::cout << sql::get<"id">(row_iter) << '\t'
-	          << sql::get<"name">(row_iter) << '\t'
-	          << sql::get<"balance">(row_iter) << '\n';
+	std::cout << sql::get<"id">(row) << '\t'
+	          << sql::get<"name">(row) << '\t'
+	          << sql::get<"balance">(row) << '\n';
 
 	std::vector<int> ids{ 1985, 2020 };
 	std::vector<std::string> names{ "needs", "concepts" };

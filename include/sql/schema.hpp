@@ -3,128 +3,88 @@
 #include <vector>
 
 #include "cexpr/string.hpp"
-#include "sql/column.hpp"
 #include "sql/row.hpp"
 
 namespace sql
 {
 
-	template <typename Col, typename... Cols>
+	template <typename... Cols>
 	class schema
 	{
-		using col_type = typename Col::type;
-		using row_type = row<Col, Cols...>;
+		using row_type = row<Cols...>;
+		using const_iterator = std::vector<row_type>::const_iterator;
 	public:
-		schema() : column_{}, next_{}
-		{}
+		schema() = default;
+
+		template <typename... Ts>
+		schema(Ts const&... cols) : schema{}
+		{
+			emplace(cols...);
+		}
+
+		template <typename... Ts>
+		schema(Ts&&... cols) : schema{}
+		{
+			emplace(cols...);
+		}
 
 		template <typename T, typename... Ts>
-		schema(T const& col, Ts const&... cols) : schema{}
+		schema(std::vector<T> const& col, Ts const&... cols) : schema{}
 		{
 			insert(col, cols...);
 		}
 
 		template <typename T, typename... Ts>
-		schema(T&& col, Ts&&... cols) : schema{}
+		schema(std::vector<T>&& col, Ts&&... cols) : schema{}
 		{
 			insert(col, cols...);
 		}
 
 		template <typename... Ts>
-		auto insert(col_type const& val, Ts const&... vals)
+		void emplace(Ts const&... vals)
 		{
-			column_.push_back(val);
-
-			if constexpr (!last())
-			{
-				next_.insert(vals...);
-			}
+			table_.emplace_back(vals...);
 		}
 
 		template <typename... Ts>
-		auto insert(col_type&& val, Ts&&... vals)
+		void emplace(Ts&&... vals)
 		{
-			column_.push_back(val);
+			table_.emplace_back(vals...);
+		}
 
-			if constexpr (!last())
+		template <typename T, typename... Ts>
+		void insert(std::vector<T> const& col, Ts const&... cols)
+		{
+			for (std::size_t i{}; i < col.size(); ++i)
 			{
-				next_.insert(vals...);
+				emplace(col[i], cols[i]...);
 			}
 		}
 
-		template <typename... Ts>
-		void insert(std::vector<col_type> const& val, Ts const&... vals)
+		template <typename T, typename... Ts>
+		void insert(std::vector<T>&& col, Ts&&... cols)
 		{
-			column_.insert(std::end(column_), std::cbegin(val), std::cend(val));
-
-			if constexpr (!last())
+			for (std::size_t i{}; i < col.size(); ++i)
 			{
-				next_.insert(vals...);
+				emplace(col[i], cols[i]...);
 			}
 		}
 
-		template <typename... Ts>
-		void insert(std::vector<col_type>&& val, Ts&&... vals)
+		const_iterator begin() const
 		{
-			column_.insert(std::end(column_), std::begin(val), std::end(val));
-
-			if constexpr (!last())
-			{
-				next_.insert(vals...);
-			}
+			return table_.begin();
 		}
 
-		row_type begin() const
+		const_iterator end() const
 		{
-			row_type row{};
-			row.it_ = column_.cbegin();
-
-			if constexpr (!last())
-			{
-				row.next_ = next_.begin();
-			}
-			
-			return row;
-		}
-
-		row_type end() const
-		{
-			row_type row{};
-			row.it_ = column_.cend();
-
-			if constexpr (!last())
-			{
-				row.next_ = next_.end();
-			}
-			
-			return row;
+			return table_.end();
 		}
 
 	private:
 		struct null_schema
 		{};
-
-		static inline constexpr bool last()
-		{
-			return sizeof...(Cols) == 0;
-		}
-
-		static inline constexpr auto resolve()
-		{
-			if constexpr (last()) 
-			{
-				return null_schema{};
-			} 
-			else
-			{
-				return schema<Cols...>{};
-			}
-		}
-
-		using next_type = decltype(resolve());
-
-		std::vector<col_type> column_;
-		next_type next_;
+		
+		std::vector<row_type> table_;
 	};
 
 } // namespace sql
