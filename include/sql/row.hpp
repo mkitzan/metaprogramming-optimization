@@ -14,8 +14,8 @@ namespace sql
 	public:
 		row() = default;
 
-		template <typename... Ts>
-		row(col_type const& val, Ts const&... vals) : value_{ val }, next_{ vals... }
+		template <typename... ColTs>
+		row(col_type const& val, ColTs const&... vals) : value_{ val }, next_{ vals... }
 		{}
 
 		inline bool operator==(row const& r) const
@@ -112,6 +112,21 @@ namespace sql
 			return get<Pos - 1>(r.next_);
 		}
 	}
+
+	// function to query the sql::column type of a column name
+	template <cexpr::string Name, typename Row>
+	constexpr auto col(Row const& r)
+	{
+		if constexpr (Row::name == Name)
+		{
+			return Row::col_type;
+		}
+		else
+		{
+			return get<Name>(r.next_);
+		}
+	}
+
 
 } // namespace sql
 
