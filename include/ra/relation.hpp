@@ -1,5 +1,6 @@
 #pragma once
 
+#include <exception>
 #include <type_traits>
 
 namespace ra
@@ -8,9 +9,18 @@ namespace ra
 	template <typename Schema>
 	struct relation
 	{
+		using output_type = Schema::row_type;
+
 		static auto next()
 		{
-			return *curr++;
+			if (curr != end)
+			{
+				return *curr++;
+			}
+			else
+			{
+				throw std::exception{};
+			}
 		}
 		
 		template <typename Relation, typename... Relations>
@@ -24,12 +34,18 @@ namespace ra
 			else
 			{
 				seed(rs...);
-			}			
+			}
 		}
 
-		static Schema::const_iterator curr{ nullptr };
-		static Schema::const_iterator end{ nullptr };
+		static Schema::const_iterator curr;
+		static Schema::const_iterator end;
 	};
+
+	template <typename Schema>
+	Schema::const_iterator relation<Schema>::curr{};
+
+	template <typename Schema>
+	Schema::const_iterator relation<Schema>::end{};
 
 } // namespace ra
 

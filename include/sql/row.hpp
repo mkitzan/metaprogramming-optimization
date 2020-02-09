@@ -44,6 +44,9 @@ namespace sql
 		template <std::size_t Pos, typename Row>
 		friend constexpr auto const& get(Row const& r);
 
+		template <cexpr::string Name, typename Row, typename T>
+		friend constexpr void set(Row& r, T const& value);
+
 		struct null_row
 		{};
 
@@ -61,19 +64,6 @@ namespace sql
 			else
 			{
 				return row<Cols...>{};
-			}
-		}
-
-		template <cexpr::string Name, typename T>
-		constexpr void set(T const& value)
-		{
-			if constexpr (name == Name)
-			{
-				value_ = value;
-			}
-			else
-			{
-				return next_.set(value);
 			}
 		}
 
@@ -110,6 +100,19 @@ namespace sql
 		else
 		{
 			return get<Pos - 1>(r.next_);
+		}
+	}
+
+	template <cexpr::string Name, typename Row, typename T>
+	constexpr void set(Row& r, T const& value)
+	{
+		if constexpr (Row::name == Name)
+		{
+			r.value_ = value;
+		}
+		else
+		{
+			set<Name>(r.next_, value);
 		}
 	}
 

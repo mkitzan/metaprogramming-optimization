@@ -17,18 +17,6 @@ namespace sql
 
 		schema() = default;
 
-		template <typename... Ts>
-		schema(Ts const&... cols) : schema{}
-		{
-			emplace(cols...);
-		}
-
-		template <typename... Ts>
-		schema(Ts&&... cols) : schema{}
-		{
-			emplace(cols...);
-		}
-
 		template <typename T, typename... Ts>
 		schema(std::vector<T> const& col, Ts const&... cols) : schema{}
 		{
@@ -82,9 +70,6 @@ namespace sql
 		}
 
 	private:
-		struct null_schema
-		{};
-		
 		std::vector<row_type> table_;
 	};
 

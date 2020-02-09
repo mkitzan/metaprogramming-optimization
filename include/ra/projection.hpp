@@ -14,33 +14,28 @@ namespace ra
 
 		static constexpr auto next()
 		{
-			return fold(output_type{}, Relation::next());
+			output_type dest{};
+			input_type src{ Relation::next() };
+			fold<Attributes...>(dest, src);
+			
+			return dest;
 		}
 
 		template <typename... Relations>
-		static void seed(Relations... rs)
+		static void seed(Relations const&... rs)
 		{
 			Relation::seed(rs...);
 		}
 
 	private:
-		static inline constexpr bool last()
-		{
-			return sizeof...(Attributes) == 0;
-		}
-
 		template <typename Attr, typename... Attrs>
-		static constexpr auto fold(output_type&& dest, input_type&& src)
+		static constexpr void fold(output_type& dest, input_type& src)
 		{
-			dest.set(sql::get<Attr::name>(src));
+			sql::set<Attr::name>(dest, sql::get<Attr::name>(src));
 
-			if constexpr (!last())
+			if constexpr (sizeof...(Attrs) != 0)
 			{
-				return fold<Attrs...>(dest, src);
-			}
-			else
-			{
-				return dest;
+				fold<Attrs...>(dest, src);
 			}
 		}
 	};
