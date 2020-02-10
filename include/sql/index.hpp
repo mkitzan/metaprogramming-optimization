@@ -37,7 +37,11 @@ namespace sql
 		};
 	};
 
-	using void_index = void;
+	struct void_index
+	{
+		struct row_comp
+		{};
+	};
 
 } // namespace sql
 

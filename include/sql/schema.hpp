@@ -1,6 +1,8 @@
 #pragma once
 
+#include <type_traits>
 #include <vector>
+#include <set>
 
 #include "sql/column.hpp"
 #include "sql/index.hpp"
@@ -14,7 +16,13 @@ namespace sql
 	{
 	public:
 		using row_type = variadic_row<Cols...>::row_type;
-		using const_iterator = std::vector<row_type>::const_iterator;
+		using container = typename
+			std::conditional<
+				std::is_same<Index, void_index>::value,
+				std::vector<row_type>,
+				std::set<row_type, typename Index::row_comp>
+			>::type;
+		using const_iterator = typename container::const_iterator;
 
 		schema() = default;
 
@@ -71,7 +79,7 @@ namespace sql
 		}
 
 	private:
-		std::vector<row_type> table_;
+		container table_;
 	};
 
 } // namespace sql
