@@ -7,7 +7,7 @@ namespace ra
 {
 
 	template <typename Relation, typename... Attributes>
-	class rename : public operation<Relation>
+	class rename : public unary<Relation>
 	{
 		using output_type = sql::row<Attributes...>;
 	public:
@@ -21,7 +21,7 @@ namespace ra
 
 	private:
 		template <typename Attr, typename... Attrs>
-		static constexpr void fold(output_type& dest, operation<Relation>::input_type const& src)
+		static constexpr void fold(output_type& dest, unary<Relation>::input_type const& src)
 		{
 			sql::set<Attr::name>(dest, sql::get<sizeof...(Attributes) - (sizeof...(Attrs) + 1)>(src));
 

@@ -7,7 +7,7 @@ namespace ra
 {
 
 	template <typename Relation, typename... Attributes>
-	class projection : public operation<Relation>
+	class projection : public unary<Relation>
 	{
 		//using output_type = sql::row<decltype(sql::col<Attributes>(input_type{}))...>;
 		using output_type = sql::row<Attributes...>;
@@ -22,7 +22,7 @@ namespace ra
 
 	private:
 		template <typename Attr, typename... Attrs>
-		static constexpr void fold(output_type& dest, operation<Relation>::input_type const& src)
+		static constexpr void fold(output_type& dest, unary<Relation>::input_type const& src)
 		{
 			sql::set<Attr::name>(dest, sql::get<Attr::name>(src));
 

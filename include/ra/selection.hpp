@@ -6,7 +6,7 @@ namespace ra
 {
 	
 	template <typename Relation, typename Predicate>
-	class selection : public operation<Relation>
+	class selection : public unary<Relation>
 	{
 		using output_type = input_type;
 	public:
