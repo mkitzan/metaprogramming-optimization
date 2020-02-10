@@ -14,14 +14,12 @@ namespace sql
 		template <typename Row>
 		struct comp
 		{
-			//template <std::enable_if<std::is_same<Row, void>::value, Row>::type>
 			bool operator()(Row const& left, Row const& right) const
 			{
 				return compare<Columns...>(left, right);
 			}
 		
 		private:
-			//template <cexpr::string Col, cexpr::string... Cols, std::enable_if<std::is_same<Row, void>::value, Row>::type>
 			template <cexpr::string Col, cexpr::string... Cols>
 			bool compare(Row const& left, Row const& right) const
 			{
