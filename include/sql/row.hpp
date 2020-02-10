@@ -14,7 +14,7 @@ namespace sql
 	public:
 		using column = Col;
 		using next = Next;
-		static constexpr std::size_t depth{ 1 + Next::depth };
+		static constexpr std::size_t depth{ 1 + next::depth };
 
 		row() = default;
 
@@ -31,8 +31,6 @@ namespace sql
 
 		template <cexpr::string Name, typename Row, typename T>
 		friend constexpr void set(Row& r, T const& value);
-
-		static constexpr auto name{ column::name };
 
 		column::type value_;
 		next next_;
@@ -67,7 +65,7 @@ namespace sql
 	template <cexpr::string Name, typename Row>
 	constexpr auto const& get(Row const& r)
 	{
-		if constexpr (Row::name == Name)
+		if constexpr (Row::column::name == Name)
 		{
 			return r.value_;
 		}
@@ -94,7 +92,7 @@ namespace sql
 	template <cexpr::string Name, typename Row, typename T>
 	constexpr void set(Row& r, T const& value)
 	{
-		if constexpr (Row::name == Name)
+		if constexpr (Row::column::name == Name)
 		{
 			r.value_ = value;
 		}
@@ -108,7 +106,7 @@ namespace sql
 	template <cexpr::string Name, typename Row>
 	constexpr auto col(Row const& r)
 	{
-		if constexpr (Row::name == Name)
+		if constexpr (Row::column::name == Name)
 		{
 			return Row::col_type;
 		}
