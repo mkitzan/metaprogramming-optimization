@@ -18,9 +18,9 @@ namespace sql
 		using row_type = variadic_row<Cols...>::row_type;
 		using container = typename
 			std::conditional<
-				std::is_same<Index, void_index>::value,
+				std::is_same<Index, index<>>::value,
 				std::vector<row_type>,
-				std::set<row_type, typename Index::row_comp>
+				std::set<row_type, typename Index::template comp<row_type>>
 			>::type;
 		using const_iterator = typename container::const_iterator;
 

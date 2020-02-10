@@ -12,7 +12,7 @@ int main()
 	std::vector<std::string> names{ "g++", "needs", "concepts" };
 
 	sql::schema<
-		sql::void_index,
+		sql::index<>,
 		sql::column<"id", int>,
 		sql::column<"name", std::string>
 	> table{ ids, names };

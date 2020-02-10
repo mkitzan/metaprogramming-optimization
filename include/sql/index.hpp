@@ -1,5 +1,7 @@
 #pragma once
 
+#include <type_traits>
+
 #include "cexpr/string.hpp"
 #include "sql/row.hpp"
 
@@ -10,14 +12,16 @@ namespace sql
 	struct index
 	{
 		template <typename Row>
-		struct row_comp
+		struct comp
 		{
+			//template <std::enable_if<std::is_same<Row, void>::value, Row>::type>
 			bool operator()(Row const& left, Row const& right) const
 			{
 				return compare<Columns...>(left, right);
 			}
 		
 		private:
+			//template <cexpr::string Col, cexpr::string... Cols, std::enable_if<std::is_same<Row, void>::value, Row>::type>
 			template <cexpr::string Col, cexpr::string... Cols>
 			bool compare(Row const& left, Row const& right) const
 			{
@@ -35,12 +39,6 @@ namespace sql
 				return l < r;
 			}
 		};
-	};
-
-	struct void_index
-	{
-		struct row_comp
-		{};
 	};
 
 } // namespace sql

@@ -11,7 +11,7 @@ int main()
 	std::vector<double> balances{ 1357.24, 9135.68, 1029.38 };
 
 	sql::schema<
-		sql::void_index,
+		sql::index<>,
 		sql::column<"id", int>,
 		sql::column<"name", std::string>,
 		sql::column<"balance", double>
