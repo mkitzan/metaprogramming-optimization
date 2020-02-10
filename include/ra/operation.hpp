@@ -3,42 +3,42 @@
 namespace ra
 {
 
-	template <typename Relation>
+	template <typename Input>
 	class unary
 	{
 	public:
-		using input_type = decltype(Relation::next());
+		using input_type = decltype(Input::next());
 
-		template <typename... Relations>
-		static void seed(Relations const&... rs)
+		template <typename... Inputs>
+		static void seed(Inputs const&... rs)
 		{
-			Relation::seed(rs...);
+			Input::seed(rs...);
 		}
 
 		static void reset()
 		{
-			Relation::reset();
+			Input::reset();
 		}
 	};
 
-	template <typename LeftRelation, typename RightRelation>
+	template <typename LeftInput, typename RightInput>
 	class binary
 	{
 	public:
-		using left_type = decltype(LeftRelation::next());
-		using right_type = decltype(RightRelation::next());
+		using left_type = decltype(LeftInput::next());
+		using right_type = decltype(RightInput::next());
 
-		template <typename... Relations>
-		static void seed(Relations const&... rs)
+		template <typename... Inputs>
+		static void seed(Inputs const&... rs)
 		{
-			LeftRelation::seed(rs...);
-			RightRelation::seed(rs...);
+			LeftInput::seed(rs...);
+			RightInput::seed(rs...);
 		}
 
 		static void reset()
 		{
-			LeftRelation::reset();
-			RightRelation::reset();
+			LeftInput::reset();
+			RightInput::reset();
 		}
 	};
 

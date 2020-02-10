@@ -2,17 +2,18 @@
 
 #include <vector>
 
-#include "cexpr/string.hpp"
+#include "sql/column.hpp"
+#include "sql/index.hpp"
 #include "sql/row.hpp"
 
 namespace sql
 {
 
-	template <typename... Cols>
+	template <typename Index, typename... Cols>
 	class schema
 	{
 	public:
-		using row_type = row<Cols...>;
+		using row_type = variadic_row<Cols...>::row_type;
 		using const_iterator = std::vector<row_type>::const_iterator;
 
 		schema() = default;

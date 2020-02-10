@@ -22,10 +22,10 @@ namespace ra
 			}
 		}
 		
-		template <typename Relation, typename... Relations>
-		static void seed(Relation const& r, Relations... rs)
+		template <typename Input, typename... Inputs>
+		static void seed(Input const& r, Inputs... rs)
 		{
-			if constexpr (std::is_same<Relation, Schema>::value)
+			if constexpr (std::is_same<Input, Schema>::value)
 			{
 				curr = r.begin();
 				begin = r.begin();

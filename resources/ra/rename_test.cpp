@@ -4,7 +4,6 @@
 
 #include "ra/relation.hpp"
 #include "ra/rename.hpp"
-#include "sql/column.hpp"
 #include "sql/schema.hpp"
 
 int main()
@@ -13,11 +12,18 @@ int main()
 	std::vector<std::string> names{ "g++", "needs", "concepts" };
 
 	sql::schema<
+		sql::void_index,
 		sql::column<"id", int>,
 		sql::column<"name", std::string>
 	> table{ ids, names };
 	
-	using query = ra::rename<ra::relation<decltype(table)>, sql::column<"year", int>, sql::column<"word", std::string>>;
+	using query =
+	ra::rename< 
+		typename sql::variadic_row<sql::column<"year", int>, sql::column<"word", std::string>>::row_type,
+		ra::relation<decltype(table)>
+	>;
+	
+	
 	query::seed(table);
 
 	try

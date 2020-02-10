@@ -6,28 +6,28 @@
 namespace ra
 {
 
-	template <typename Relation, typename... Attributes>
-	class rename : public unary<Relation>
+	template <typename Output, typename Input>
+	class rename : public unary<Input>
 	{
-		using output_type = sql::row<Attributes...>;
+		using output_type = Output;
 	public:
 		static auto next()
 		{
 			output_type dest{};
-			fold<Attributes...>(dest, Relation::next());
+			fold<typename Output::column, typename Output::next>(dest, Input::next());
 			
 			return dest;
 		}
 
 	private:
-		template <typename Attr, typename... Attrs>
-		static constexpr void fold(output_type& dest, unary<Relation>::input_type const& src)
+		template <typename Column, typename Next>
+		static constexpr void fold(output_type& dest, unary<Input>::input_type const& src)
 		{
-			sql::set<Attr::name>(dest, sql::get<sizeof...(Attributes) - (sizeof...(Attrs) + 1)>(src));
+			sql::set<Column::name>(dest, sql::get<Output::depth - (Next::depth + 1)>(src));
 
-			if constexpr (sizeof...(Attrs) != 0)
+			if constexpr (Next::depth != 0)
 			{
-				fold<Attrs...>(dest, src);
+				fold<typename Next::column, typename Next::next>(dest, src);
 			}
 		}
 	};

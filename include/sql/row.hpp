@@ -1,5 +1,6 @@
 #pragma once
 
+#include <type_traits>
 #include <vector>
 
 #include "cexpr/string.hpp"
@@ -7,37 +8,21 @@
 namespace sql
 {
 
-	template <typename Col, typename... Cols>
+	template <typename Col, typename Next>
 	class row
 	{
-		using col_type = typename Col::type;
 	public:
+		using column = Col;
+		using next = Next;
+		static constexpr std::size_t depth{ 1 + Next::depth };
+
 		row() = default;
 
 		template <typename... ColTs>
-		row(col_type const& val, ColTs const&... vals) : value_{ val }, next_{ vals... }
+		row(column::type const& val, ColTs const&... vals) : value_{ val }, next_{ vals... }
 		{}
-
-		inline bool operator==(row const& r) const
-		{
-			if constexpr (!last())
-			{
-				return (value_ == r.value) && (next_ == r.next_);
-			} else
-			{
-				return (next_ == r.next_);
-			}
-		}
-
-		inline bool operator!=(row const& r) const
-		{
-			return !(*this == r);
-		}
 	
-	private:		
-		template <typename...>
-		friend class schema;
-
+	private:
 		template <cexpr::string Name, typename Row>
 		friend constexpr auto const& get(Row const& r);
 
@@ -47,32 +32,35 @@ namespace sql
 		template <cexpr::string Name, typename Row, typename T>
 		friend constexpr void set(Row& r, T const& value);
 
-		struct null_row
-		{};
+		static constexpr auto name{ column::name };
 
-		static inline constexpr bool last()
+		column::type value_;
+		next next_;
+	};
+
+	template <typename Col, typename... Cols>
+	struct variadic_row
+	{
+	private:
+		struct void_row
 		{
-			return sizeof...(Cols) == 0;
-		}
+			static constexpr std::size_t depth{ 0 };
+		};
 
 		static inline constexpr auto resolve()
 		{
-			if constexpr (last()) 
+			if constexpr (sizeof...(Cols) != 0)
 			{
-				return null_row{};
-			} 
+				return typename variadic_row<Cols...>::row_type{};
+			}
 			else
 			{
-				return row<Cols...>{};
+				return void_row{};
 			}
 		}
 
-		using next_type = decltype(resolve());
-
-		static constexpr auto name{ Col::name };
-
-		col_type value_;
-		next_type next_;
+	public:
+		using row_type = row<Col, decltype(resolve())>;
 	};
 
 	// user function to query row elements by column name
@@ -137,14 +125,14 @@ namespace sql
 namespace std
 {
 
-	template <typename... Ts>
-	class tuple_size<sql::row<Ts...>> : public integral_constant<size_t, sizeof...(Ts)>
+	template <typename Col, typename Next>
+	class tuple_size<sql::row<Col, Next>> : public integral_constant<size_t, sql::row<Col, Next>::depth>
 	{};
 
-	template <size_t I, typename... Ts>
-	struct tuple_element<I, sql::row<Ts...>>
+	template <size_t I, typename Col, typename Next>
+	struct tuple_element<I, sql::row<Col, Next>>
 	{
-		using type = decltype(sql::get<I>(sql::row<Ts...>{}));
+		using type = decltype(sql::get<I>(sql::row<Col, Next>{}));
 	};
 
 } // namespace std

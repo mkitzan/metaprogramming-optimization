@@ -5,18 +5,18 @@
 namespace ra
 {
 	
-	template <typename Relation, typename Predicate>
-	class selection : public unary<Relation>
+	template <typename Predicate, typename Input>
+	class selection : public unary<Input>
 	{
 		using output_type = input_type;
 	public:
 		static auto next()
 		{
-			auto row{ Relation::next() };
+			auto row{ Input::next() };
 
 			while(!Predicate::eval(row))
 			{
-				row = Relation::next();
+				row = Input::next();
 			}
 
 			return row;

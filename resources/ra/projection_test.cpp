@@ -4,7 +4,6 @@
 
 #include "ra/projection.hpp"
 #include "ra/relation.hpp"
-#include "sql/column.hpp"
 #include "sql/schema.hpp"
 
 int main()
@@ -14,6 +13,7 @@ int main()
 	std::vector<std::string> names{ "g++", "needs", "concepts" };
 
 	sql::schema<
+		sql::void_index,
 		sql::column<"id", int>,
 		sql::column<"balance", double>,
 		sql::column<"name", std::string>
@@ -24,7 +24,12 @@ int main()
 		std::cout << id << '\t' << balance << '\t' << name << '\n';
 	}
 
-	using query = ra::projection<ra::relation<decltype(table)>, sql::column<"id", int>, sql::column<"balance", double>>;
+	using query =
+	ra::projection<
+		typename sql::variadic_row<sql::column<"id", int>, sql::column<"balance", double>>::row_type,
+		ra::relation<decltype(table)>
+	>;
+	
 	query::seed(table);
 
 	try
