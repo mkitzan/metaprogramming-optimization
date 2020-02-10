@@ -16,5 +16,11 @@ January
 		Python recursive descent infix parser (bbird)
 		Compile time string literal infix parser, variadic variables
 	Week 5
-		Recursive template schema and row classes
+		Recursive variadic schema and row classes
 		Support structured binding declarations and range loop
+	Week 6
+		Basic unary relational algebra operators (pi, and rho)
+		Relational algebra terminal (relation) 
+		Changed architecture to template recursive (to support compile time parsing)
+		Changed schema to single vector (for performance)
+		Added infrastructure for indexes, binary RA operators, an sigma
