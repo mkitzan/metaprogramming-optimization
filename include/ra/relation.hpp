@@ -28,6 +28,7 @@ namespace ra
 			if constexpr (std::is_same<Relation, Schema>::value)
 			{
 				curr = r.begin();
+				begin = r.begin();
 				end = r.end();
 			}
 			else
@@ -36,13 +37,22 @@ namespace ra
 			}
 		}
 
+		static void reset()
+		{
+			curr = begin;
+		}
+
 	private:
 		static Schema::const_iterator curr;
+		static Schema::const_iterator begin;
 		static Schema::const_iterator end;
 	};
 
 	template <typename Schema>
 	Schema::const_iterator relation<Schema>::curr{};
+
+	template <typename Schema>
+	Schema::const_iterator relation<Schema>::begin{};
 
 	template <typename Schema>
 	Schema::const_iterator relation<Schema>::end{};

@@ -23,7 +23,7 @@ namespace ra
 		template <typename Attr, typename... Attrs>
 		static constexpr void fold(output_type& dest, operation<Relation>::input_type const& src)
 		{
-			sql::set<Attr::name>(dest, sql::get<sizeof...(Attributes) - sizeof...(Attrs) + 1>(src));
+			sql::set<Attr::name>(dest, sql::get<sizeof...(Attributes) - (sizeof...(Attrs) + 1)>(src));
 
 			if constexpr (sizeof...(Attrs) != 0)
 			{

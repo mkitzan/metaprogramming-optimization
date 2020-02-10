@@ -14,6 +14,11 @@ namespace ra
 		{
 			Relation::seed(rs...);
 		}
+
+		static void reset()
+		{
+			Relation::reset();
+		}
 	};
 
 } // namespace ra
