@@ -7,9 +7,8 @@ namespace ra
 {
 
 	template <typename Relation, typename... Attributes>
-	class projection : public operation<Relation>
+	class rename : public operation<Relation>
 	{
-		//using output_type = sql::row<decltype(sql::col<Attributes>(input_type{}))...>;
 		using output_type = sql::row<Attributes...>;
 	public:
 		static auto next()
@@ -24,7 +23,7 @@ namespace ra
 		template <typename Attr, typename... Attrs>
 		static constexpr void fold(output_type& dest, operation<Relation>::input_type const& src)
 		{
-			sql::set<Attr::name>(dest, sql::get<Attr::name>(src));
+			sql::set<Attr::name>(dest, sql::get<sizeof...(Attributes) - sizeof...(Attrs) + 1>(src));
 
 			if constexpr (sizeof...(Attrs) != 0)
 			{
@@ -32,5 +31,5 @@ namespace ra
 			}
 		}
 	};
-
+	
 } // namespace ra

@@ -1,17 +1,26 @@
 #pragma once
 
+#include "ra/operation.hpp"
+
 namespace ra
 {
 	
-	template <typename Relation, typename... Attributes>
-	struct selection
+	template <typename Relation, typename Predicate>
+	class selection : public operation<Relation>
 	{
-		using output_type = sql::row<Attributes...>;
-		using input_type = decltype(Relation::next());
+		using output_type = input_type;
+	public:
+		static auto next()
+		{
+			auto row{ Relation::next() };
 
-		static constexpr auto next()
-		{}
+			while(!Predicate::eval(row))
+			{
+				row = Relation::next();
+			}
+
+			return row;
+		}
 	};
 
 } // namespace ra
-

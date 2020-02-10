@@ -7,11 +7,10 @@ namespace ra
 {
 
 	template <typename Schema>
-	struct relation
+	class relation
 	{
-		using output_type = Schema::row_type;
-
-		static auto next()
+	public:
+		static auto const& next()
 		{
 			if (curr != end)
 			{
@@ -37,6 +36,7 @@ namespace ra
 			}
 		}
 
+	private:
 		static Schema::const_iterator curr;
 		static Schema::const_iterator end;
 	};
@@ -48,4 +48,3 @@ namespace ra
 	Schema::const_iterator relation<Schema>::end{};
 
 } // namespace ra
-

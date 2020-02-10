@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <string>
 
 namespace cexpr
 {
@@ -77,5 +78,19 @@ namespace cexpr
 
     template <typename CharT, std::size_t N>
     string(const CharT[N]) -> string<CharT, N>;
+
+    template <typename CharT, std::size_t N>
+    constexpr bool operator==(std::basic_string<CharT> const& str, string<CharT, N> const& cstr)
+    {
+        if (str.size() != N)
+        {
+            return false;
+        }
+
+        std::size_t i{};
+        for (; i < N && str[i] == cstr[i]; ++i);
+
+        return i == N;
+    }
 
 } // namespace cexpr
