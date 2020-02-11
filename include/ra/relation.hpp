@@ -10,7 +10,7 @@ namespace ra
 	class relation
 	{
 	public:
-		static auto const& next()
+		static inline auto const& next()
 		{
 			if (curr != end)
 			{
@@ -37,7 +37,7 @@ namespace ra
 			}
 		}
 
-		static void reset()
+		static inline void reset()
 		{
 			curr = begin;
 		}

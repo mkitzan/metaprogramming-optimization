@@ -11,7 +11,7 @@ namespace ra
 	{
 		using output_type = Output;
 	public:
-		static auto next()
+		static inline auto next()
 		{
 			output_type dest{};
 			fold<typename Output::column, typename Output::next>(dest, Input::next());
@@ -21,7 +21,7 @@ namespace ra
 
 	private:
 		template <typename Column, typename Next>
-		static constexpr void fold(output_type& dest, unary<Input>::input_type const& src)
+		static inline constexpr void fold(output_type& dest, unary<Input>::input_type const& src)
 		{
 			sql::set<Column::name>(dest, sql::get<Output::depth - (Next::depth + 1)>(src));
 

@@ -63,7 +63,7 @@ namespace sql
 
 	// user function to query row elements by column name
 	template <cexpr::string Name, typename Row>
-	constexpr auto const& get(Row const& r)
+	inline constexpr auto const& get(Row const& r)
 	{
 		if constexpr (Row::column::name == Name)
 		{
@@ -77,7 +77,7 @@ namespace sql
 
 	// compiler function used by structured binding declaration
 	template <std::size_t Pos, typename Row>
-	constexpr auto const& get(Row const& r)
+	inline constexpr auto const& get(Row const& r)
 	{
 		if constexpr (Pos == 0)
 		{

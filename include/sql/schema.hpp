@@ -39,13 +39,13 @@ namespace sql
 		}
 
 		template <typename... Ts>
-		void emplace(Ts const&... vals)
+		inline void emplace(Ts const&... vals)
 		{
 			table_.emplace_back(vals...);
 		}
 
 		template <typename... Ts>
-		void emplace(Ts&&... vals)
+		inline void emplace(Ts&&... vals)
 		{
 			table_.emplace_back(vals...);
 		}
@@ -68,12 +68,12 @@ namespace sql
 			}
 		}
 
-		const_iterator begin() const
+		inline const_iterator begin() const
 		{
 			return table_.begin();
 		}
 
-		const_iterator end() const
+		inline const_iterator end() const
 		{
 			return table_.end();
 		}

@@ -10,12 +10,12 @@ namespace ra
 		using input_type = decltype(Input::next());
 
 		template <typename... Inputs>
-		static void seed(Inputs const&... rs)
+		static inline void seed(Inputs const&... rs)
 		{
 			Input::seed(rs...);
 		}
 
-		static void reset()
+		static inline void reset()
 		{
 			Input::reset();
 		}
@@ -29,13 +29,13 @@ namespace ra
 		using right_type = decltype(RightInput::next());
 
 		template <typename... Inputs>
-		static void seed(Inputs const&... rs)
+		static inline void seed(Inputs const&... rs)
 		{
 			LeftInput::seed(rs...);
 			RightInput::seed(rs...);
 		}
 
-		static void reset()
+		static inline void reset()
 		{
 			LeftInput::reset();
 			RightInput::reset();
