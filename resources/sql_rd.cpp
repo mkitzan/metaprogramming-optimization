@@ -9,11 +9,11 @@ size_t POS{};
 std::vector<std::string_view> TOKENS{};
 bool has_aggregate{}, has_groupby{}, has_where{}, has_rename{};
 
-void assert(bool valid)
+void assert(bool valid, std::string msg)
 {
 	if (!valid)
 	{
-		throw std::exception{};
+		throw std::runtime_error{ msg };
 	}
 }
 
@@ -37,7 +37,7 @@ size_t next(size_t i, std::string const& str)
 {
 	if (syntax(str[i]))
 	{
-		for (; i < str.size() && syntax(str[i]); ++i);
+		++i;
 	}
 	else
 	{
@@ -91,17 +91,170 @@ void groupby(){}
 
 void where(){}
 
-void from(){} 
+void from()
+{
 
-void project(){}
+}
 
-void aggregate(){}
+void column(size_t& i)
+{
+	std::cout << '\t' << TOKENS[i];
+	// name = TOKENS[i];
+	assert(TOKENS[++i] == "<", "Missing \'<\'");
+	// type = parse_type(TOKENS[++i]);
+	std::cout << '\t' << TOKENS[++i];
+	assert(TOKENS[++i] == ">", "Missing \'>\'");
+	++i;
+}
 
-void rename(){}
+void recr_project()
+{
+	assert(!syntax(TOKENS[POS][0]), "Unexpected syntax");
+
+	// form column
+	if (agg(TOKENS[POS]))
+	{
+		POS += 7;
+	}
+	else
+	{
+		column(POS);
+	}
+
+	if (TOKENS[POS] == "as")
+	{
+		POS += 2;
+	}
+
+	if (TOKENS[POS] == ",")
+	{
+		std::cout << std::endl;
+		++POS;
+		recr_project();
+	}
+	else if (TOKENS[POS] == "from")
+	{
+		// return void_row;
+		return;
+	}
+	else
+	{
+		assert(false, "Unexpected token");
+	}
+}
+
+void project()
+{
+	std::cout << "Project schema\n";
+	recr_project();
+	std::cout << std::endl;
+	from();
+}
+
+void recr_aggregate(size_t i)
+{
+	assert(!syntax(TOKENS[i][0]), "Unexpected syntax");
+
+	// form column
+	if (agg(TOKENS[i]))
+	{
+		std::cout << "\t" << TOKENS[i];
+		//agg_type(TOKENS[i]);
+		assert(TOKENS[++i] == "(", "Missing \'(\'");
+		column(++i);
+		assert(TOKENS[i] == ")", "Missing \')\'");
+		++i;
+	}
+	else
+	{
+		std::cout << "\t";
+		column(i);
+	}
+
+	if (TOKENS[i] == "as")
+	{
+		i += 2;
+	}
+
+	if (TOKENS[i] == ",")
+	{
+		std::cout << std::endl;
+		recr_aggregate(++i);
+	}
+	else if (TOKENS[i] == "from")
+	{
+		// return void_row;
+		return;
+	}
+	else
+	{
+		assert(false, "Unexpected token");
+	}
+}
+
+void aggregate()
+{
+	std::cout << "Aggregate schema\n";
+	recr_aggregate(POS);
+	std::cout << std::endl;
+	project();
+}
+
+void recr_rename(size_t i)
+{
+	assert(!syntax(TOKENS[i][0]), "Unexpected syntax");
+
+	// form column
+	if (agg(TOKENS[i]))
+	{
+		std::cout << "\t" << TOKENS[i];
+		//agg_type(TOKENS[i]);
+		assert(TOKENS[++i] == "(", "Missing \'(\'");
+		column(++i);
+		assert(TOKENS[i] == ")", "Missing \')\'");
+		++i;
+	}
+	else
+	{
+		std::cout << "\t";
+		column(i);
+	}
+
+	if (TOKENS[i] == "as")
+	{
+		std::cout << '\t' << TOKENS[++i];
+		// column name = TOKENS[++i]
+		// column type = previous column's type
+		++i;
+	}
+
+	if (TOKENS[i] == ",")
+	{
+		std::cout << std::endl;
+		recr_rename(++i);
+	}
+	else if (TOKENS[i] == "from")
+	{
+		// return void_row;
+		return;
+	}
+	else
+	{
+		assert(false, "Unexpected token");
+	}
+}
+
+void rename()
+{
+	std::cout << "Rename schema\n";
+	recr_rename(POS);
+	std::cout << std::endl;
+	aggregate();
+}
 
 void select()
 {
-	assert(!syntax(TOKENS[POS][0]));
+	assert(!syntax(TOKENS[POS][0]), "Unexpected syntax");
 
 	if (has_rename)
 	{
@@ -123,11 +276,14 @@ void parse(std::string query)
 	POS = 0;
 	tokenize(query);
 
-	assert(TOKENS[POS++] == "select");
+	std::cout << "===---------------===\n";
+
+	assert(TOKENS[POS++] == "select", "Expected \'select\'");
 
 	if (TOKENS[POS] == "distinct")
 	{
 		++POS;
+		std::cout << "Distinct node\n";
 		// unary op distinct node
 		select();
 	}
@@ -144,6 +300,6 @@ void parse(std::string query)
 
 int main()
 {
-	parse("select name<str>,count(name<str>)as instances from table where id=1940 group by name");
+	parse("select name<str>,count(name<str>)as counts from T0 where id=1940 group by name");
 	return 0;
 }
