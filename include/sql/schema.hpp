@@ -20,7 +20,7 @@ namespace sql
 			std::conditional<
 				std::is_same<Index, index<>>::value,
 				std::vector<row_type>,
-				std::set<row_type, typename Index::template comp<row_type>>
+				std::multiset<row_type, typename Index::template comp<row_type>>
 			>::type;
 		using const_iterator = typename container::const_iterator;
 

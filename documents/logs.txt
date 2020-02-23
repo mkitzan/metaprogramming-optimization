@@ -24,3 +24,5 @@ January
 		Changed architecture to template recursive (to support compile time parsing)
 		Changed schema to single vector (for performance)
 		Added infrastructure for indexes, binary RA operators, an sigma
+	Week 7
+		Runtime recursive descent SQL parser/validator

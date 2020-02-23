@@ -7,7 +7,7 @@
 // global tokenizer data simulating cexpr templ 
 size_t POS{};
 std::vector<std::string_view> TOKENS{};
-bool has_aggregate{}, has_groupby{}, has_where{}, has_rename{};
+bool has_aggregate{}, has_groupby{}, has_where{}, has_rename{}, has_join{};
 
 void assert(bool valid, std::string msg)
 {
@@ -57,6 +57,7 @@ void flags()
 		has_groupby |= TOKENS[size] == "by" && TOKENS[size] == "group";
 		has_where |= TOKENS[size] == "where";
 		has_rename |= TOKENS[size] == "as";
+		has_join |= TOKENS[size] == "join";
 	}
 }
 
@@ -83,17 +84,67 @@ void tokenize(std::string const& query)
 	}
 }
 
-void expression(){}
+void groupby()
+{}
 
-void having(){}
+void relation(size_t pos)
+{
+	std::cout << '\t' << TOKENS[pos] << '\n';
+}
 
-void groupby(){}
+void join(size_t pos)
+{
+	if (TOKENS[pos + 1] == "natural")
+	{
+		// natural join node
+		relation(pos);
+		relation(pos + 2);
+	}
+	else
+	{
+		// other join node
+		relation(pos);
+		// parse until table
+		relation(pos + 2);
+	}
+}
 
-void where(){}
+void expression(size_t pos)
+{
+	std::cout << "todo\n";
+}
+
+void where(size_t pos)
+{
+	assert(TOKENS[POS] == "where", "Expected \'where\' token");
+	
+	std::cout << "Predicate expression\n\t";
+	// infix parse of predicate -> bind to select node
+	expression(++POS);
+
+	if (has_join)
+	{
+		join(pos);
+	}
+	else
+	{
+		std::cout << "Relations\n";
+		relation(pos);
+	}
+}
 
 void from()
 {
-
+	size_t pos{ POS };
+	if (has_where)
+	{
+		for (; POS < TOKENS.size() && TOKENS[POS] != "where"; ++POS);
+		where(pos);
+	}
+	else
+	{
+		relation(pos);
+	}
 }
 
 void column(size_t& i)
@@ -128,7 +179,6 @@ void recr_project()
 
 	if (TOKENS[POS] == ",")
 	{
-		std::cout << std::endl;
 		++POS;
 		recr_project();
 	}
@@ -148,6 +198,7 @@ void project()
 	std::cout << "Project schema\n";
 	recr_project();
 	std::cout << std::endl;
+	assert(TOKENS[POS++] == "from", "Expected \'from\' token");
 	from();
 }
 
