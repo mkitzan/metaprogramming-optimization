@@ -72,7 +72,7 @@ namespace cexpr
 
 		static constexpr tokens<char, tlength(Str), tcount(Str)> tokens_{ Str };
 
-		using expression = decltype(parse<0>().second);
+		using expression = decltype(NODE(parse<0>()));
 	};
 
 } // namespace cexpr
