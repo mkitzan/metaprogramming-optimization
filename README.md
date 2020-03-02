@@ -5,6 +5,8 @@ Investigating the benefits and applications of compile time metaprogramming.
  
 This is my most recent project, and it shows my C++ competence better than any other repo of mine. Please note this project is still a work in progress!
 
+This stuff is so dense and complex that it's generally unrealistic for any real production code base. However, it is cool.
+
 ## Constexpr SQL Expressions
 
 This is the code base for my honors project. The end goal of the project is to create a `constexpr` SQL parser which will serialize a string literal SQL query into a type representing the relational algebra expression tree of the computation. This type can then be instantiated and evaluated at run time with tables (represented as [`sql::schema`](https://github.com/mkitzan/metaprogramming-optimization/blob/master/include/sql/schema.hpp) objects). Once seeded with tables, the SQL expression object will behave like a stream where the user can query the `next` row of output or dump the entire output into an `sql::schema` object. Unfortunately only GCC 9 is supported, because of the widespread use of the new C++20 feature ["Class Types in Non-Type Template Parameters"](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0732r2.pdf) (for [`cexpr::string`](https://github.com/mkitzan/metaprogramming-optimization/blob/master/include/cexpr/string.hpp) objects as non-type template parameters) which is only implemented by GCC 9. The project heavily uses template recursion, template metaprogramming, variadic templates, constexpr, and recursive data types. Excluding constexpr, these are all highly analogous to [**ML**](https://en.wikipedia.org/wiki/ML_(programming_language)) programming language features (as a point of reference).
