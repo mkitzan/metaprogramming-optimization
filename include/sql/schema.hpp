@@ -1,6 +1,7 @@
 #pragma once
 
 #include <type_traits>
+#include <utility>
 #include <vector>
 #include <set>
 
@@ -35,7 +36,7 @@ namespace sql
 		template <typename T, typename... Ts>
 		schema(std::vector<T>&& col, Ts&&... cols) : schema{}
 		{
-			insert(col, cols...);
+			insert(std::forward<T>(col), std::forward<Ts...>(cols...));
 		}
 
 		template <typename... Ts>
@@ -47,7 +48,7 @@ namespace sql
 		template <typename... Ts>
 		inline void emplace(Ts&&... vals)
 		{
-			table_.emplace_back(vals...);
+			table_.emplace_back(std::forward<Ts...>(vals...));
 		}
 
 		template <typename T, typename... Ts>
@@ -64,7 +65,7 @@ namespace sql
 		{
 			for (std::size_t i{}; i < col.size(); ++i)
 			{
-				emplace(col[i], cols[i]...);
+				emplace(std::forward<T>(col[i]), std::forward<Ts...>(cols[i]...));
 			}
 		}
 
