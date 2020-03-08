@@ -10,6 +10,8 @@ namespace cexpr
     class string
     {
     public:
+		using char_type = CharT;
+
         constexpr string() : size_{ 0 }, string_{ 0 } {}
 
         constexpr string(const CharT(&s)[N]) : string{}
@@ -19,6 +21,22 @@ namespace cexpr
                 string_[size_] = s[size_];
             }
         }
+
+		constexpr void fill(const CharT* begin, const CharT* end)
+		{
+			fill_from(begin, end, begin());
+		}
+
+		constexpr void fill_from(const CharT* begin, const CharT* end, CharT* start)
+		{
+			if (end - begin < N)
+			{
+				for (auto curr{ start }; begin != end; ++begin, ++curr)
+				{
+					*curr = *begin;
+				}
+			}
+		}
 
         constexpr std::size_t capacity() const noexcept
         { 

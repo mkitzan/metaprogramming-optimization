@@ -8,6 +8,11 @@
 namespace sql
 {
 
+	struct void_row
+	{
+		static constexpr std::size_t depth{ 0 };
+	};
+
 	template <typename Col, typename Next>
 	class row
 	{
@@ -40,11 +45,6 @@ namespace sql
 	struct variadic_row
 	{
 	private:
-		struct void_row
-		{
-			static constexpr std::size_t depth{ 0 };
-		};
-
 		static inline constexpr auto resolve()
 		{
 			if constexpr (sizeof...(Cols) != 0)
