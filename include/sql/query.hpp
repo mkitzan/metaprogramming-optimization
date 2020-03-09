@@ -65,28 +65,8 @@ namespace sql
 		template <std::size_t Pos>
 		static constexpr auto column_type()
 		{
-			constexpr auto token{ tokens_[Pos] };
-
-			if constexpr (token == "i32")
-			{
-				return int32_t{};
-			}
-			else if constexpr (token == "u32")
-			{
-				return uint32_t{};
-			}
-			else if constexpr (token == "flt")
-			{
-				return float{};
-			}
-			else if constexpr (token == "dbl")
-			{
-				return double{};
-			}
-			else
-			{
-				return std::string{};
-			}
+			constexpr cexpr::string<char, tokens_[Pos].length() + 1> name{ tokens_[Pos] };
+			return decltype(sql::get<name>(typename Schema::row_type{})){};
 		}
 
 		template <std::size_t Pos>
@@ -132,11 +112,11 @@ namespace sql
 			{
 				constexpr auto offset{ find_rename<Pos, Pos>() };
 				
-				return ColInfo<decltype(column_type<Pos + 2>()), offset, next>{};
+				return ColInfo<decltype(column_type<Pos>()), offset, next>{};
 			}
 			else
 			{
-				return ColInfo<decltype(column_type<Pos + 2>()), Pos, next>{};
+				return ColInfo<decltype(column_type<Pos>()), Pos, next>{};
 			}
 		}
 

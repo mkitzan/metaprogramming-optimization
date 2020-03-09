@@ -18,7 +18,7 @@ int main()
 			sql::column<"name", std::string>,
 			sql::column<"balance", double>
 		>;
-	using expr = sql::query<"select id<i32> as year, balance<dbl>, name<str> as comment from T0", schema>;
+	using expr = sql::query<"select id as year, balance, name as comment from T0", schema>;
 	
 	schema table{ ids, names, balances };
 	expr::seed(table);
