@@ -26,3 +26,7 @@ January
 		Added infrastructure for indexes, binary RA operators, an sigma
 	Week 7
 		Runtime recursive descent SQL parser/validator
+	Week 8
+		Write up
+	Week 9
+		Constexpr template recursive recursive descent SQL parser up to "FROM"
