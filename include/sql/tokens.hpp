@@ -13,13 +13,13 @@ namespace sql
 	{
 		
 		template <typename CharT>
-		bool whitespace(CharT curr)
+		constexpr bool whitespace(CharT curr)
 		{
 			return curr == CharT{ ' ' } || curr == CharT{ '\t' } || curr == CharT{ '\n' };
 		}
 
 		template <typename CharT>
-		bool syntax(CharT curr)
+		constexpr bool syntax(CharT curr)
 		{
 			return curr == CharT{ ',' } || curr == CharT{ '(' } || curr == CharT{ ')' } ||
 				curr == CharT{ '\'' } || curr == CharT{ '\"' } || curr == CharT{ '<' } ||
@@ -27,16 +27,24 @@ namespace sql
 		}
 
 		template <typename CharT>
-		const CharT* skip(const CharT *curr, const CharT *end)
+		constexpr const CharT* skip(const CharT *curr, const CharT *end)
 		{
 			for (; curr < end && whitespace(*curr); ++curr);
 			return curr;
 		}
 
 		template <typename CharT>
-		const CharT* next(CharT *curr, const CharT *end)
+		constexpr const CharT* next(const CharT *curr, const CharT *end)
 		{
-			for (; curr < end && !whitespace(*curr) && !syntax(*curr); ++curr);
+			if (syntax(*curr))
+			{
+				++curr;
+			}
+			else
+			{
+				for (; curr < end && !whitespace(*curr) && !syntax(*curr); ++curr);
+			}
+			
 			return curr;
 		}
 	
@@ -61,7 +69,7 @@ namespace sql
 				last = curr;
 				last = next(last, end);
 
-				tokens_[i++] = token_view{ curr, last - curr };
+				tokens_[i++] = token_view{ curr, (std::size_t) last - (std::size_t) curr };
 				curr = last;
 			}
 		}
@@ -103,16 +111,11 @@ namespace sql
 	};
 
 	template<typename CharT, std::size_t N>
-	constexpr std::size_t preprocess(cexpr::string<CharT, N>& cs)
+	constexpr std::size_t preprocess(cexpr::string<CharT, N> const& cs)
 	{
 		auto begin{ cs.cbegin() };
 		const auto end{ cs.cend() };
-		std::size_t count{ 1 };
-
-		for (auto& letter : cs)
-		{
-			letter = std::tolower(letter);
-		}
+		std::size_t count{ 0 };
 
 		while (begin < end)
 		{

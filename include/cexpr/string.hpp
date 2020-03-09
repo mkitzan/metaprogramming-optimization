@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <string>
+#include <string_view>
 
 namespace cexpr
 {
@@ -16,11 +17,27 @@ namespace cexpr
 
         constexpr string(const CharT(&s)[N]) : string{}
         {
-            for(size_ = 0; s[size_]; ++size_)
+            for(; s[size_]; ++size_)
             {
                 string_[size_] = s[size_];
             }
         }
+
+		constexpr string(cexpr::string<CharT, N> const& s) : string{}
+		{
+			for (; s[size_]; ++size_)
+			{
+				string_[size_] = s[size_];
+			}
+		}
+
+		constexpr string(std::basic_string_view<CharT> const& s) : string{}
+		{
+			for (; size_ < s.length(); ++size_)
+			{
+				string_[size_] = s[size_];
+			}
+		}
 
 		constexpr void fill(const CharT* begin, const CharT* end)
 		{

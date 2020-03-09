@@ -2,6 +2,7 @@
 
 #include <array>
 #include <string>
+#include <type_traits>
 
 #include "ra/projection.hpp"
 #include "ra/relation.hpp"
@@ -11,28 +12,49 @@
 #include "sql/tokens.hpp"
 #include "sql/row.hpp"
 
-#include "templ/valtype.hpp"
-#include "templ/pair.hpp"
-
-// Macros to improve readability by aliasing the operations of generic template entities
-#define NODE(Pair) (Pair.second)
-#define POS(Pair) (Pair.first)
-#define TYPE_WRAP(Value) (templ::VT<Value>{})
-#define TREE_EXPR(Pos, Node) (templ::pair(TYPE_WRAP(Pos), TYPE_WRAP(Node)))
-
 namespace sql
 {
 
-	template <cexpr::string Str>
+	namespace
+	{
+
+		template <std::size_t Pos, typename Node>
+		struct TreeExpr
+		{
+			using node = Node;
+			static constexpr std::size_t pos = Pos;
+		};
+
+		template <typename Type, std::size_t Name, std::size_t Next>
+		struct ColInfo
+		{
+			using type = Type;
+			static constexpr std::size_t name = Name;
+			static constexpr std::size_t next = Next;
+		};
+
+	} // namespace
+
+	template <cexpr::string Str, typename Schema>
 	class query
 	{
 	public:
+		static constexpr void seed(Schema const& table)
+		{
+			expression::seed(table);
+		}
+
+		static constexpr auto next()
+		{
+			return expression::next();
+		}
+
 	private:
 
 		template <std::size_t Pos>
 		static constexpr auto parse_from()
 		{
-			return 0;
+			return ra::relation<Schema>{};
 		}
 
 		static constexpr bool aggregate(std::string_view const& sv)
@@ -40,9 +62,10 @@ namespace sql
 			return sv == "count" || sv == "avg" || sv == "max" || sv == "min" || sv == "sum";
 		}
 
-		static constexpr auto column_type(std::size_t pos)
+		template <std::size_t Pos>
+		static constexpr auto column_type()
 		{
-			constexpr auto token{ tokens_[pos] };
+			constexpr auto token{ tokens_[Pos] };
 
 			if constexpr (token == "i32")
 			{
@@ -52,11 +75,11 @@ namespace sql
 			{
 				return uint32_t{};
 			}
-			else if constexpr (token == "float")
+			else if constexpr (token == "flt")
 			{
 				return float{};
 			}
-			else if constexpr (token == "double")
+			else if constexpr (token == "dbl")
 			{
 				return double{};
 			}
@@ -69,7 +92,11 @@ namespace sql
 		template <std::size_t Pos>
 		static constexpr auto next_column()
 		{
-			if constexpr (tokens_[Pos] != "," || tokens_[Pos] == "from" || Pos >= tokens_.size())
+			if constexpr (tokens_[Pos] == ",")
+			{
+				return Pos + 1;
+			}
+			else if constexpr (tokens_[Pos] == "from")
 			{
 				return Pos;
 			}
@@ -79,19 +106,10 @@ namespace sql
 			}
 		}
 
-		template <std::size_t Pos>
-		static constexpr auto parse_column_type()
-		{
-			constexpr auto val{ column_type(Pos + 1) };
-			constexpr auto i{ next_column<Pos + 1>() };
-
-			return TREE_EXPR(i + 1, val);
-		}
-
 		template <std::size_t Pos, std::size_t Curr>
-		static constexpr auto as()
+		static constexpr auto find_rename()
 		{
-			if constexpr (tokens_[Pos] == "from")
+			if constexpr (tokens_[Pos] == "," || tokens_[Pos] == "from")
 			{
 				return Curr;
 			}
@@ -101,61 +119,25 @@ namespace sql
 			}
 			else
 			{
-				return as<Pos + 1, Curr>();
-			}
-		}
-
-		template <std::size_t Pos>
-		static constexpr auto type_start()
-		{
-			if constexpr (tokens_[Pos] == "<")
-			{
-				return Pos;
-			}
-			else
-			{
-				return type_start<Pos + 1>();
+				return find_rename<Pos + 1, Curr>();
 			}
 		}
 
 		template <std::size_t Pos, bool Re>
-		static constexpr auto parse_column_name()
+		static constexpr auto parse_column_info()
 		{
+			constexpr auto next{ next_column<Pos>() };
+
 			if constexpr (Re)
 			{
-				constexpr auto offset{ as<Pos, Pos>() };
-
-				if constexpr (offset != Pos)
-				{
-					cexpr::string<char, tokens_[Pos].end() - tokens_[Pos].begin()> name{};
-					
-					name.fill(tokens_[Pos].begin(), tokens_[Pos].end());
-
-					return TREE_EXPR(type_start<Pos>(), name);
-				}
-			}
-
-			if constexpr (aggregate(tokens_[Pos]))
-			{
-				auto len0{ tokens_[Pos].end() - tokens_[Pos].begin() };
-				auto len1{ tokens_[Pos + 2].end() - tokens_[Pos + 1].begin() };
-
-				cexpr::string<char, len0 + len1 + 2> name{};
-
-				name.fill(tokens_[Pos].begin(), tokens_[Pos].end());
-				name[len0] = '(';
-				name.fill_from(tokens_[Pos + 2].begin(), tokens_[Pos + 2].end(), name[len0 + 1]);
-				name[len0 + len1 + 1] = ')';
-
-				return TREE_EXPR(Pos + 3, name);
+				constexpr auto offset{ find_rename<Pos, Pos>() };
+				
+				return ColInfo<decltype(column_type<Pos + 2>()), offset, next>{};
 			}
 			else
 			{
-				cexpr::string<char, tokens_[Pos].end() - tokens_[Pos].begin()> name{};
-				name.fill(tokens_[Pos].begin(), tokens_[Pos].end());
-
-				return TREE_EXPR(Pos + 1, name);
-			}	
+				return ColInfo<decltype(column_type<Pos + 2>()), Pos, next>{};
+			}
 		}
 
 		template <std::size_t Pos, bool Re>
@@ -163,16 +145,16 @@ namespace sql
 		{
 			if constexpr (tokens_[Pos] == "from")
 			{
-				return sql::void_row{};
+				return TreeExpr<Pos, sql::void_row>{};
 			}
 			else
 			{
-				constexpr auto name{ parse_column_name<Pos, Re>() };
-				constexpr auto type{ parse_column_type<POS(name)>() };
-				constexpr auto col{ sql::column<name, decltype(NODE(type))>{} };
-				constexpr auto child{ recurse_columns<POS(type) + 1, Re>() };
+				constexpr auto info{ parse_column_info<Pos, Re>() };
+				constexpr auto name{ cexpr::string<char, tokens_[info.name].length() + 1>{ tokens_[info.name] } };
+				constexpr auto col{ sql::column<name, typename decltype(info)::type>{} };
+				constexpr auto child{ recurse_columns<info.next, Re>() };
 
-				return TREE_EXPR(POS(type), (sql::row<decltype(col), decltype(child)>{}));
+				return TreeExpr<child.pos, sql::row<decltype(col), std::remove_cvref_t<typename decltype(child)::node>>>{};
 			}
 		}
 
@@ -181,7 +163,7 @@ namespace sql
 		{
 			constexpr auto projection{ recurse_columns<Pos, false>() };
 
-			return ra::projection<decltype(NODE(projection)), decltype(parse_from<POS(projection) + 1>())>{};
+			return ra::projection<typename decltype(projection)::node, decltype(parse_from<projection.pos + 1>())>{};
 		}
 
 		template <std::size_t Pos>
@@ -189,12 +171,12 @@ namespace sql
 		{
 			constexpr auto rename{ recurse_columns<Pos, true>() };
 
-			return ra::rename<decltype(NODE(rename)), decltype(parse_projection<Pos>())>{};
+			return ra::rename<typename decltype(rename)::node, decltype(parse_projection<Pos>())>{};
 		}
 
 		static constexpr sql::tokens<char, sql::preprocess(Str)> tokens_{ Str };
 
-		using expression = decltype(parse_projection<1>());
+		using expression = decltype(parse_rename<1>());
 	};
 
 } // namespace sql
