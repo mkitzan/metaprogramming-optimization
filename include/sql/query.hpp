@@ -106,7 +106,7 @@ namespace sql
 			else if constexpr (isdigit(tokens_[Pos][0]))
 			{
 				constexpr cexpr::string<char, tokens_[Pos].length() + 1> name{ tokens_[Pos] };
-				constexpr auto val{ isintegral(tokens_[Pos]) ? int{} : float{} };
+				constexpr auto val{ isintegral(tokens_[Pos]) ? std::int64_t{} : double{} };
 
 				return TreeNode<Pos + 1, sql::constant<sql::convert<std::remove_const_t<decltype(val)>>(name), Row>>{};
 			}
