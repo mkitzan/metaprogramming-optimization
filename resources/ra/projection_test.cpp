@@ -41,6 +41,6 @@ int main()
 			std::cout << id << '\t' << balance << '\n';
 		}
 	}
-	catch(const std::exception& e)
+	catch(const ra::data_end& e)
 	{}
 }

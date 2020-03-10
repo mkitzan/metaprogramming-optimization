@@ -34,6 +34,6 @@ int main()
 			std::cout << sql::get<"year">(row) << '\t' << sql::get<"word">(row) << '\n';
 		}
 	}
-	catch(const std::exception& e)
+	catch(const ra::data_end& e)
 	{}
 }

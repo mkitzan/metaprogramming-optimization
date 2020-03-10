@@ -9,8 +9,9 @@ namespace ra
 	template <typename Output, typename Input>
 	class projection : public unary<Input>
 	{
-		using output_type = Output;
 	public:
+		using output_type = Output;
+
 		static inline auto next()
 		{
 			output_type dest{};

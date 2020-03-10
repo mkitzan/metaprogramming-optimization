@@ -29,16 +29,16 @@ int main()
 	std::vector<int> ids{ 1914, 1985, 2020 };
 	std::vector<std::string> names{ "g++", "needs", "concepts" };
 	std::vector<double> balances{ 1357.24, 9135.68, 1029.38 };
-	
-	schema table{ ids, names, balances };
-	query::seed(table);
 
-	auto row{ query::next() };
+	schema table{ ids, names, balances };
+
+	query q{ table };
+	auto row{ *q.begin() };
 
 	std::cout << sql::get<"year">(row) << '\t'
 	          << sql::get<"balance">(row) << '\t'
 	          << sql::get<"comment">(row) << '\n';
-	
+
 	for (auto [id, name, balance] : table)
 	{
 		std::cout << id << '\t' << name << '\t' << balance << '\n';

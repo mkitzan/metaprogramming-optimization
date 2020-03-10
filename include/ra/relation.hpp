@@ -6,10 +6,15 @@
 namespace ra
 {
 
+	struct data_end : std::exception
+	{};
+
 	template <typename Schema>
 	class relation
 	{
 	public:
+		using output_type = Schema::const_iterator;
+
 		static inline auto const& next()
 		{
 			if (curr != end)
@@ -18,7 +23,7 @@ namespace ra
 			}
 			else
 			{
-				throw std::exception{};
+				throw ra::data_end{};
 			}
 		}
 		

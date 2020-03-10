@@ -40,25 +40,57 @@ namespace sql
 
 	} // namespace
 
+	template <typename Expr>
+	class query_iterator
+	{
+	public:
+		using row_type = Expr::output_type;
+
+		query_iterator(bool end) : end_{}, row_{}
+		{
+			operator++();
+		}
+
+		bool operator==(query_iterator const& it) const
+		{
+			return end_ == it.end_;
+		}
+
+		bool operator!=(query_iterator const& it) const
+		{
+			return !(*this == it);
+		}
+
+		row_type const& operator*() const
+		{
+			return row_;
+		}
+
+		query_iterator& operator++()
+		{
+			if (!end_)
+			{
+				try
+				{
+					row_ = Expr::next();
+				}
+				catch (ra::data_end const& e)
+				{
+					end_ = true;
+				}
+			}
+
+			return *this;
+		}
+
+	private:
+		bool end_{};
+		row_type row_{};
+	};
+
 	template <cexpr::string Str, typename Schema>
 	class query
 	{
-	public:
-		static constexpr void seed(Schema const& table)
-		{
-			expression::seed(table);
-		}
-
-		static constexpr auto next()
-		{
-			return expression::next();
-		}
-
-		static constexpr void reset()
-		{
-			expression::reset();
-		}
-
 	private:
 		static constexpr bool isintegral(std::string_view const& tv) noexcept
 		{
@@ -299,6 +331,39 @@ namespace sql
 		static constexpr sql::tokens<char, sql::preprocess(Str)> tokens_{ Str };
 
 		using expression = decltype(parse_rename<1>());
+	
+	public:
+		using iterator = query_iterator<expression>;
+
+		static constexpr void seed(Schema const& table) noexcept
+		{
+			expression::seed(table);
+		}
+
+		static constexpr auto next()
+		{
+			return expression::next();
+		}
+
+		static constexpr void reset() noexcept
+		{
+			expression::reset();
+		}
+
+		constexpr query(Schema const& table) noexcept
+		{
+			seed(table);
+		}
+
+		constexpr iterator begin()
+		{
+			return iterator{ false };
+		}
+
+		constexpr iterator end()
+		{
+			return iterator{ true };
+		}
 	};
 
 } // namespace sql
