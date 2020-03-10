@@ -2,14 +2,19 @@
 
 #include <array>
 #include <string>
+#include <string_view>
 #include <type_traits>
+
+#include "cexpr/string.hpp"
 
 #include "ra/projection.hpp"
 #include "ra/relation.hpp"
 #include "ra/rename.hpp"
+#include "ra/selection.hpp"
 
 #include "sql/column.hpp"
 #include "sql/tokens.hpp"
+#include "sql/predicate.hpp"
 #include "sql/row.hpp"
 
 namespace sql
@@ -56,28 +61,76 @@ namespace sql
 
 	private:
 		template <std::size_t Pos>
-		static constexpr auto parse_terminators()
-		{}
+		static constexpr auto convert_sv() noexcept
+		{
+			return cexpr::string<char, tokens_[Pos].length() + 1>{ tokens_[Pos] };
+		}
+
+		static inline constexpr bool isdigit(char c) noexcept
+		{
+			return c == '-' || c == '.' || (c >= '0' && c <= '9');
+		}
+
+		template <std::size_t Pos, typename Row>
+		static constexpr auto parse_terminators() noexcept
+		{
+			if constexpr (tokens_[Pos] == "(")
+			{
+				constexpr auto expr{ parse_logical_ops<Pos + 1, Row>() };
+
+				return TreeNode<expr.pos + 1, typename decltype(expr)::node>{};
+			}
+			else if constexpr (tokens_[Pos] == "\'" || tokens_[Pos] == "\"")
+			{
+				return TreeNode<Pos + 3, sql::constant<convert_sv<Pos + 1>(), Row>>{};
+			}
+			else if constexpr (isdigit(tokens_[Pos][0]))
+			{
+				return TreeNode<Pos + 1, sql::constant<sql::convert(convert_sv<Pos>()), Row>>{};
+			}
+			else
+			{
+				return TreeNode<Pos + 1, sql::variable<convert_sv<Pos>(), Row>>{};
+			}
+		}
+
+		template <std::size_t Pos, typename Row>
+		static constexpr auto parse_comp_ops() noexcept
+		{
+			constexpr auto left{ parse_terminators<Pos, Row>() };
+			
+			// todo
+		}
+
+		template <std::size_t Pos, typename Row>
+		static constexpr auto parse_negation_ops() noexcept
+		{
+			if constexpr (tokens_[Pos] == "not" || tokens_[Pos] == "NOT")
+			{
+				constexpr auto expr{ parse_comp_ops<Pos + 1, Row>() };
+				return TreeNode<expr.pos, sql::operation<convert_sv<Pos>(), Row, decltype(expr)::node>>{};
+			}
+			else
+			{
+				return parse_comp_ops<Pos + 1, Row>();
+			}
+		}
+
+		template <std::size_t Pos, typename Row>
+		static constexpr auto parse_logical_ops() noexcept
+		{
+			constexpr auto left{ parse_negation_ops<Pos, Row>() };
+			
+			// todo
+		}
 
 		template <std::size_t Pos>
-		static constexpr auto parse_comp_ops()
-		{}
-
-		template <std::size_t Pos>
-		static constexpr auto parse_negation_ops()
-		{}
-
-		template <std::size_t Pos>
-		static constexpr auto parse_logical_ops()
-		{}
-
-		template <std::size_t Pos>
-		static constexpr auto parse_from()
+		static constexpr auto parse_from() noexcept
 		{
 			if constexpr (Pos + 3 < tokens_.count() && (tokens_[Pos + 2] == "where" || tokens_[Pos + 2] == "WHERE"))
 			{
-				
-				return ra::selection<decltype(parse_logical_ops<Pos + 3>()), ra::relation<Schema>>{};
+				constexpr auto predicate{ parse_logical_ops<Pos + 3, ra::relation<Schema>>() };
+				return ra::selection<decltype(predicate)::node, ra::relation<Schema>>{};
 			}
 			else
 			{
@@ -86,14 +139,13 @@ namespace sql
 		}
 
 		template <std::size_t Pos>
-		static constexpr auto column_type()
+		static constexpr auto column_type() noexcept
 		{
-			constexpr cexpr::string<char, tokens_[Pos].length() + 1> name{ tokens_[Pos] };
-			return decltype(sql::get<name>(typename Schema::row_type{})){};
+			return decltype(sql::get<convert_sv<Pos>()>(typename Schema::row_type{})){};
 		}
 
 		template <std::size_t Pos>
-		static constexpr auto next_column()
+		static constexpr auto next_column() noexcept
 		{
 			if constexpr (tokens_[Pos] == ",")
 			{
@@ -110,7 +162,7 @@ namespace sql
 		}
 
 		template <std::size_t Pos, std::size_t Curr>
-		static constexpr auto find_rename()
+		static constexpr auto find_rename() noexcept
 		{
 			if constexpr (tokens_[Pos] == "," || tokens_[Pos] == "from" || tokens_[Pos] == "FROM")
 			{
@@ -127,7 +179,7 @@ namespace sql
 		}
 
 		template <std::size_t Pos, bool Rename>
-		static constexpr auto parse_column_info()
+		static constexpr auto parse_column_info() noexcept
 		{
 			constexpr auto next{ next_column<Pos>() };
 
@@ -154,8 +206,7 @@ namespace sql
 			{
 				constexpr auto info{ parse_column_info<Pos, Rename>() };
 				constexpr auto child{ recurse_columns<info.next, Rename>() };
-				constexpr auto name{ cexpr::string<char, tokens_[info.name].length() + 1>{ tokens_[info.name] } };
-				constexpr auto col{ sql::column<name, typename decltype(info)::type>{} };
+				constexpr auto col{ sql::column<convert_sv<info.name>(), typename decltype(info)::type>{} };
 
 				return TreeNode<child.pos, sql::row<decltype(col), std::remove_cvref_t<typename decltype(child)::node>>>{};
 			}

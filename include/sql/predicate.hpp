@@ -7,8 +7,8 @@
 namespace sql
 {
 
-	template <cexpr::string Op, typename Row, typename Left, typename Right>
-	struct operator
+	template <cexpr::string Op, typename Row, typename Left, typename Right=void>
+	struct operation
 	{
 		static constexpr bool eval(Row const& row)
 		{
@@ -73,11 +73,11 @@ namespace sql
 		}
 	};
 
-	template <typename Type>
-	constexpr Type convert(cexpr::string const& str)
+	template <typename Type, typename CharT, std::size_t N>
+	constexpr Type convert(cexpr::string<CharT, N> const& str)
 	{
 		auto curr{ str.begin() }, end{ str.end() };
-		constexpr decltype(str)::char_type nul{ '\0' }, dot{ '.' }, zro{ '0' }, min{ '-' };
+		constexpr CharT nul{ '\0' }, dot{ '.' }, zro{ '0' }, min{ '-' };
 		Type acc{}, sign{ 1 }, scalar{ 10 };
 
 		if (*curr == min)
@@ -99,7 +99,7 @@ namespace sql
 
 			while(curr != end)
 			{
-				acc += (*cur - zro) * (scalar /= Type{ 10 });
+				acc += (*curr - zro) * (scalar /= Type{ 10 });
 				++curr;
 			}
 		}

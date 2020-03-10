@@ -8,7 +8,7 @@ namespace ra
 	template <typename Predicate, typename Input>
 	class selection : public unary<Input>
 	{
-		using output_type = input_type;
+		using output_type = unary<Input>::input_type;
 	public:
 		static auto next()
 		{
