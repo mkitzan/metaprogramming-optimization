@@ -60,7 +60,7 @@ namespace sql
 		}
 
 	private:
-		static constexpr bool isintegral(std::string_view const& tv)
+		static constexpr bool isintegral(std::string_view const& tv) noexcept
 		{
 			bool result{ false };
 
@@ -77,12 +77,12 @@ namespace sql
 			return c == '-' || c == '.' || (c >= '0' && c <= '9');
 		}
 
-		static constexpr bool iscomp(std::string_view const& tv)
+		static constexpr bool iscomp(std::string_view const& tv) noexcept
 		{
 			return tv == "=" || tv == "!=" || tv == "<>" || tv[0] == '<' || tv[0] == '>';
 		}
 
-		static constexpr bool islogical(std::string_view const& tv)
+		static constexpr bool islogical(std::string_view const& tv) noexcept
 		{
 			return tv == "or" || tv == "OR" || tv == "and" || tv == "AND";
 		}

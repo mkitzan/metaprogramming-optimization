@@ -18,12 +18,16 @@ int main()
 			sql::column<"name", std::string>,
 			sql::column<"balance", double>
 		>;
-	using expr = sql::query<"select id as year, balance, name as comment from T0 where id > 1945 and not balance < 1500.0", schema>;
+	using query =
+		sql::query<
+			"select id as year, balance, name as comment from T0 where id > 1945 and not balance < 1500.0",
+			schema
+		>;
 	
 	schema table{ ids, names, balances };
-	expr::seed(table);
+	query::seed(table);
 
-	auto row{ expr::next() };
+	auto row{ query::next() };
 
 	std::cout << sql::get<"year">(row) << '\t'
 	          << sql::get<"balance">(row) << '\t'
