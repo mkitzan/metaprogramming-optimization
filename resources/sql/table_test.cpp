@@ -31,9 +31,8 @@ int main()
 	std::vector<double> balances{ 1357.24, 3254.65, 9135.68, 1829.38 };
 
 	schema table{ ids, names, balances };
-	query q{ table };
 
-	for (auto [year, balance, comment] : q)
+	for (query q{ table }; auto [year, balance, comment] : q)
 	{
 		std::cout << year << '\t' << balance << '\t' << comment << '\n';
 	}
