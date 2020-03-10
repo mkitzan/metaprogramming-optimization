@@ -106,6 +106,20 @@ namespace cexpr
             return i == N;
         }
 
+		template <typename OtherCharT, std::size_t OtherN>
+        constexpr bool operator==(const OtherCharT(&other)[OtherN]) const
+        {
+            if constexpr (N != OtherN)
+            {
+                return false;
+            }
+
+            std::size_t i{};
+            for (; i < N && string_[i] == other[i]; ++i);
+
+            return i == N;
+        }
+
     private:
         CharT string_[N];
         std::size_t size_;

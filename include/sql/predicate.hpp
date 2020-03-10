@@ -55,12 +55,12 @@ namespace sql
 		}
 	};
 
-	template <cexpr::string Col, typename Row>
+	template <cexpr::string Column, typename Row>
 	struct variable
 	{
 		static constexpr auto eval(Row const& row)
 		{
-			return sql::get<Col>(row);
+			return sql::get<Column>(row);
 		}
 	};
 
@@ -73,12 +73,12 @@ namespace sql
 		}
 	};
 
-	template <typename Type, typename CharT, std::size_t N>
-	constexpr Type convert(cexpr::string<CharT, N> const& str)
+	template <typename CharT, std::size_t N>
+	constexpr int convert(cexpr::string<CharT, N> const& str)
 	{
-		auto curr{ str.begin() }, end{ str.end() };
+		auto curr{ str.cbegin() }, end{ str.cend() };
 		constexpr CharT nul{ '\0' }, dot{ '.' }, zro{ '0' }, min{ '-' };
-		Type acc{}, sign{ 1 }, scalar{ 10 };
+		int acc{}, sign{ 1 }, scalar{ 10 };
 
 		if (*curr == min)
 		{
@@ -99,7 +99,7 @@ namespace sql
 
 			while(curr != end)
 			{
-				acc += (*curr - zro) * (scalar /= Type{ 10 });
+				acc += (*curr - zro) * (scalar /= int{ 10 });
 				++curr;
 			}
 		}
