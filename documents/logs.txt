@@ -30,3 +30,9 @@ January
 		Write up
 	Week 9
 		Constexpr template recursive recursive descent SQL parser up to "FROM"
+	Week 10
+		Constexpr template recursive where predicate parser
+		Triggered seg fault in GCC 9.2 regarding:
+			returning copy-elided constexpr object through
+			static constexpr function member with auto return type deduction into a
+			constexpr object template non-type parameter 
