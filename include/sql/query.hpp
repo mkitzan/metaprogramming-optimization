@@ -170,7 +170,7 @@ namespace sql
 			}
 			else
 			{
-				constexpr auto right{ parse_comp<Left::pos + 1, Row>() };
+				constexpr auto right{ parse_negation<Left::pos + 1, Row>() };
 				constexpr auto pos{ Left::pos % tokens_.count() };
 				constexpr cexpr::string<char, tokens_[pos].length() + 1> name{ tokens_[pos] };
 				constexpr auto node{ sql::operation<name, Row, typename Left::node, typename decltype(right)::node>{} };
