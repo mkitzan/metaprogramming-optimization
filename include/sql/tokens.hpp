@@ -74,7 +74,7 @@ namespace sql
 			}
 		}
 
-		constexpr std::size_t size() const noexcept
+		constexpr std::size_t count() const noexcept
 		{
 			return Tn;
 		}
@@ -128,4 +128,3 @@ namespace sql
 	}
 
 } // namespace sql
-
