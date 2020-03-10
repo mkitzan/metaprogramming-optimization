@@ -355,6 +355,11 @@ namespace sql
 			seed(table);
 		}
 
+		~query() noexcept
+		{
+			reset();
+		}
+
 		constexpr iterator begin()
 		{
 			return iterator{ false };
