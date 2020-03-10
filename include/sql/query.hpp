@@ -46,7 +46,7 @@ namespace sql
 	public:
 		using row_type = Expr::output_type;
 
-		query_iterator(bool end) : end_{}, row_{}
+		query_iterator(bool end) : end_{ end }, row_{}
 		{
 			operator++();
 		}

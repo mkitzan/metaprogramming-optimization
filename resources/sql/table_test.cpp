@@ -17,7 +17,7 @@ namespace
 		>;
 	using query =
 		sql::query<
-			"select id as year, balance, name as comment from T0 where id > 1945 and not balance < 1500.0",
+			"select id as year, balance, name as comment from T0 where id >= 1945 and not balance < 1500.0",
 			schema
 		>;
 
@@ -26,21 +26,15 @@ namespace
 
 int main()
 {
-	std::vector<int> ids{ 1914, 1985, 2020 };
-	std::vector<std::string> names{ "g++", "needs", "concepts" };
-	std::vector<double> balances{ 1357.24, 9135.68, 1029.38 };
+	std::vector<int> ids{ 1914, 1945, 1985, 2020 };
+	std::vector<std::string> names{ "skip", "g++", "needs", "concepts" };
+	std::vector<double> balances{ 1357.24, 3254.65, 9135.68, 1829.38 };
 
 	schema table{ ids, names, balances };
-
 	query q{ table };
-	auto [year, balance, comment]{ *q.begin() };
 
-	std::cout << year << '\t'
-	          << balance << '\t'
-	          << comment << '\n';
-
-	for (auto [id, name, balance] : table)
+	for (auto [year, balance, comment] : q)
 	{
-		std::cout << id << '\t' << name << '\t' << balance << '\n';
+		std::cout << year << '\t' << balance << '\t' << comment << '\n';
 	}
 }

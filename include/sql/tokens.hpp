@@ -22,8 +22,7 @@ namespace sql
 		constexpr bool syntax(CharT curr)
 		{
 			return curr == CharT{ ',' } || curr == CharT{ '(' } || curr == CharT{ ')' } ||
-				curr == CharT{ '\'' } || curr == CharT{ '\"' } || curr == CharT{ '<' } ||
-				curr == CharT{ '>' } || curr == CharT{ '=' };
+				curr == CharT{ '\'' } || curr == CharT{ '\"' } || curr == CharT{ '=' };
 		}
 
 		template <typename CharT>
@@ -36,7 +35,16 @@ namespace sql
 		template <typename CharT>
 		constexpr const CharT* next(const CharT *curr, const CharT *end)
 		{
-			if (syntax(*curr))
+			if (*curr == CharT{ '>' } || *curr == CharT{ '<' })
+			{
+				++curr;
+
+				if (*curr == CharT{ '=' })
+				{
+					++curr;
+				}
+			}
+			else if (syntax(*curr))
 			{
 				++curr;
 			}
