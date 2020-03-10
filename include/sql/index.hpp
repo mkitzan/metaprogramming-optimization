@@ -23,8 +23,8 @@ namespace sql
 			template <cexpr::string Col, cexpr::string... Cols>
 			bool compare(Row const& left, Row const& right) const
 			{
-				auto const& l{ get<Col>(left) };
-				auto const& r{ get<Col>(right) };
+				auto const& l{ sql::get<Col>(left) };
+				auto const& r{ sql::get<Col>(right) };
 
 				if constexpr (sizeof...(Cols) != 0)
 				{

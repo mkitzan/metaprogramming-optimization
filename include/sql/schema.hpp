@@ -16,10 +16,10 @@ namespace sql
 	class schema
 	{
 	public:
-		using row_type = variadic_row<Cols...>::row_type;
+		using row_type = sql::variadic_row<Cols...>::row_type;
 		using container = typename
 			std::conditional_t<
-				std::is_same<Index, index<>>::value,
+				std::is_same<Index, sql::index<>>::value,
 				std::vector<row_type>,
 				std::multiset<row_type, typename Index::template comp<row_type>>
 			>;

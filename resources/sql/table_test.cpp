@@ -5,11 +5,8 @@
 #include "sql/query.hpp"
 #include "sql/schema.hpp"
 
-int main()
+namespace
 {
-	std::vector<int> ids{ 1914, 1985, 2020 };
-	std::vector<std::string> names{ "g++", "needs", "concepts" };
-	std::vector<double> balances{ 1357.24, 9135.68, 1029.38 };
 
 	using schema =
 		sql::schema<
@@ -23,6 +20,15 @@ int main()
 			"select id as year, balance, name as comment from T0 where id > 1945 and not balance < 1500.0",
 			schema
 		>;
+
+} // namespace
+
+
+int main()
+{
+	std::vector<int> ids{ 1914, 1985, 2020 };
+	std::vector<std::string> names{ "g++", "needs", "concepts" };
+	std::vector<double> balances{ 1357.24, 9135.68, 1029.38 };
 	
 	schema table{ ids, names, balances };
 	query::seed(table);
