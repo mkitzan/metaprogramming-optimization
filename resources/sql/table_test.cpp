@@ -33,11 +33,11 @@ int main()
 	schema table{ ids, names, balances };
 
 	query q{ table };
-	auto row{ *q.begin() };
+	auto [year, balance, comment]{ *q.begin() };
 
-	std::cout << sql::get<"year">(row) << '\t'
-	          << sql::get<"balance">(row) << '\t'
-	          << sql::get<"comment">(row) << '\n';
+	std::cout << year << '\t'
+	          << balance << '\t'
+	          << comment << '\n';
 
 	for (auto [id, name, balance] : table)
 	{
