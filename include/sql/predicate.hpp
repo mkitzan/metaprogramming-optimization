@@ -7,6 +7,20 @@
 namespace sql
 {
 
+	namespace
+	{
+
+		template <typename ValT>
+		struct number
+		{
+			constexpr number(ValT val) : value{ val }
+			{}
+
+			ValT value;
+		};
+
+	} // namespace
+
 	template <cexpr::string Op, typename Row, typename Left, typename Right=void>
 	struct operation
 	{
@@ -69,16 +83,16 @@ namespace sql
 	{
 		static constexpr auto eval(Row const& row)
 		{
-			return Const;
+			return Const.value;
 		}
 	};
 
-	template <typename CharT, std::size_t N>
-	constexpr int convert(cexpr::string<CharT, N> const& str)
+	template <typename ValT, typename CharT, std::size_t N>
+	constexpr number<ValT> convert(cexpr::string<CharT, N> const& str)
 	{
 		auto curr{ str.cbegin() }, end{ str.cend() };
 		constexpr CharT nul{ '\0' }, dot{ '.' }, zro{ '0' }, min{ '-' };
-		int acc{}, sign{ 1 }, scalar{ 10 };
+		ValT acc{}, sign{ 1 }, scalar{ 10 };
 
 		if (*curr == min)
 		{
@@ -99,12 +113,12 @@ namespace sql
 
 			while(curr != end)
 			{
-				acc += (*curr - zro) * (scalar /= int{ 10 });
+				acc += (*curr - zro) * (scalar /= ValT{ 10 });
 				++curr;
 			}
 		}
 
-		return acc * sign;
+		return number<ValT>{ acc * sign };
 	}
 
 } // namespace sql

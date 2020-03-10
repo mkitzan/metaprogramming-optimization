@@ -60,6 +60,18 @@ namespace sql
 		}
 
 	private:
+		static constexpr bool isintegral(std::string_view const& tv)
+		{
+			bool result{ false };
+
+			for (auto c : tv)
+			{
+				result |= (c == '.');
+			}
+
+			return !result;
+		}
+
 		static constexpr bool isdigit(char c) noexcept
 		{
 			return c == '-' || c == '.' || (c >= '0' && c <= '9');
@@ -93,15 +105,14 @@ namespace sql
 			}
 			else if constexpr (isdigit(tokens_[Pos][0]))
 			{
-				constexpr auto pos{ Pos % tokens_.count() };
-				constexpr cexpr::string<char, tokens_[pos].length() + 1> name{ tokens_[pos] };
+				constexpr cexpr::string<char, tokens_[Pos].length() + 1> name{ tokens_[Pos] };
+				constexpr auto val{ isintegral(tokens_[Pos]) ? int{} : float{} };
 
-				return TreeNode<Pos + 1, sql::constant<sql::convert(name), Row>>{};
+				return TreeNode<Pos + 1, sql::constant<sql::convert<std::remove_const_t<decltype(val)>>(name), Row>>{};
 			}
 			else
 			{
-				constexpr auto pos{ Pos % tokens_.count() };
-				constexpr cexpr::string<char, tokens_[pos].length() + 1> name{ tokens_[pos] };
+				constexpr cexpr::string<char, tokens_[Pos].length() + 1> name{ tokens_[Pos] };
 
 				return TreeNode<Pos + 1, sql::variable<name, Row>>{};
 			}
