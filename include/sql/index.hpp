@@ -3,6 +3,7 @@
 #include <type_traits>
 
 #include "cexpr/string.hpp"
+
 #include "sql/row.hpp"
 
 namespace sql

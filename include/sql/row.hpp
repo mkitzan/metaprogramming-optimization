@@ -37,6 +37,9 @@ namespace sql
 		template <cexpr::string Name, typename Row, typename T>
 		friend constexpr void set(Row& r, T const& value);
 
+		template <typename Dest, typename Left, typename Right>
+		friend constexpr void link(Dest& d, Left const& l, Right const& r);
+
 		column::type value_;
 		next next_;
 	};
@@ -89,6 +92,7 @@ namespace sql
 		}
 	}
 
+	// function to assign a value to a column's value in a row
 	template <cexpr::string Name, typename Row, typename T>
 	constexpr void set(Row& r, T const& value)
 	{
@@ -104,18 +108,54 @@ namespace sql
 
 	// function to query the sql::column type of a column name
 	template <cexpr::string Name, typename Row>
-	constexpr auto col(Row const& r)
+	constexpr auto col()
 	{
 		if constexpr (Row::column::name == Name)
 		{
-			return Row::col_type;
+			return Row::column;
 		}
 		else
 		{
-			return get<Name>(r.next_);
+			return col<Name, Row::next>();
 		}
 	}
 
+	// function to query the type of two rows merged together
+	template <typename Left, typename Right>
+	constexpr auto link()
+	{
+		if constexpr (Left{} == sql::void_row{})
+		{
+			return Right{};
+		}
+		else
+		{
+			return sql::row<typename Left::column, decltype(link<Left::next, Right>())>{};
+		}
+	}
+
+	// function to join two rows into a merge row
+	template <typename Dest, typename Left, typename Right>
+	constexpr void merge(Dest& d, Left const& l, Right const& r)
+	{
+		if constexpr (l == sql::void_row{})
+		{
+			if constexpr (r == sql::void_row{})
+			{
+				return;
+			}
+			else
+			{
+				d.value_ = r.value_;
+				merge(d.next_, l, r.next_);	
+			}
+		}
+		else
+		{
+			d.value_ = l.value_;
+			merge(d.next_, l.next_, r);
+		}
+	}
 
 } // namespace sql
 

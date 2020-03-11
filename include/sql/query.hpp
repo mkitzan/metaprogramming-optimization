@@ -7,6 +7,7 @@
 
 #include "cexpr/string.hpp"
 
+#include "ra/join.hpp"
 #include "ra/projection.hpp"
 #include "ra/relation.hpp"
 #include "ra/rename.hpp"

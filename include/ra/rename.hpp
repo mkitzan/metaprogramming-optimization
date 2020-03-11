@@ -1,15 +1,17 @@
 #pragma once
 
 #include "ra/operation.hpp"
+
 #include "sql/row.hpp"
 
 namespace ra
 {
 
 	template <typename Output, typename Input>
-	class rename : public unary<Input>
+	class rename : public ra::unary<Input>
 	{
 	public:
+		using input_type = ra::unary<Input>::input_type;
 		using output_type = Output;
 
 		static inline auto next()
@@ -22,7 +24,7 @@ namespace ra
 
 	private:
 		template <typename Column, typename Next>
-		static inline constexpr void fold(output_type& dest, unary<Input>::input_type const& src)
+		static inline constexpr void fold(output_type& dest, input_type const& src)
 		{
 			sql::set<Column::name>(dest, sql::get<Output::depth - (Next::depth + 1)>(src));
 

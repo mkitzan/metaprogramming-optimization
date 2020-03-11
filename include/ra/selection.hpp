@@ -6,10 +6,11 @@ namespace ra
 {
 	
 	template <typename Predicate, typename Input>
-	class selection : public unary<Input>
+	class selection : public ra::unary<Input>
 	{
 	public:
-		using output_type = unary<Input>::input_type;		
+		using input_type = ra::unary<Input>::input_type;
+		using output_type = input_type;		
 
 		static auto next()
 		{
