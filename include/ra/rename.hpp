@@ -17,20 +17,23 @@ namespace ra
 		static inline auto next()
 		{
 			output_type dest{};
-			fold<typename Output::column, typename Output::next>(dest, Input::next());
+			fold<output_type, input_type>(dest, Input::next());
 			
 			return dest;
 		}
 
 	private:
-		template <typename Column, typename Next>
-		static inline constexpr void fold(output_type& dest, input_type const& src)
+		template <typename Dest, typename Src>
+		static inline constexpr void fold(Dest& dest, Src const& src)
 		{
-			sql::set<Column::name>(dest, sql::get<Output::depth - (Next::depth + 1)>(src));
-
-			if constexpr (Next::depth != 0)
+			if constexpr (Dest::depth == 0)
 			{
-				fold<typename Next::column, typename Next::next>(dest, src);
+				return;
+			}
+			else
+			{
+				dest.head() = src.head();
+				fold<typename Dest::next, typename Src::next>(dest.tail(), src.tail());
 			}
 		}
 	};

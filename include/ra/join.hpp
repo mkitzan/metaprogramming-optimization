@@ -9,7 +9,7 @@ namespace ra
 {
 
 	template <typename LeftInput, typename RightInput>
-	class inner_join : public ra::binary<LeftInput, RightInput>
+	class cross_join : public ra::binary<LeftInput, RightInput>
 	{
 	public:
 		using left_type = ra::binary<LeftInput, RightInput>::left_type;

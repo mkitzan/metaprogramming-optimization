@@ -26,20 +26,28 @@ namespace sql
 		template <typename... ColTs>
 		row(column::type const& val, ColTs const&... vals) : value_{ val }, next_{ vals... }
 		{}
+
+		inline next const& tail() const
+		{
+			return next_;
+		}
+
+		inline next& tail()
+		{
+			return next_;
+		}
+
+		inline column::type const& head() const
+		{
+			return value_;
+		}
+
+		inline column::type& head()
+		{
+			return value_;
+		}
 	
 	private:
-		template <cexpr::string Name, typename Row>
-		friend constexpr auto const& get(Row const& r);
-
-		template <std::size_t Pos, typename Row>
-		friend constexpr auto const& get(Row const& r);
-
-		template <cexpr::string Name, typename Row, typename T>
-		friend constexpr void set(Row& r, T const& value);
-
-		template <typename Dest, typename Left, typename Right>
-		friend constexpr void link(Dest& d, Left const& l, Right const& r);
-
 		column::type value_;
 		next next_;
 	};
@@ -70,11 +78,11 @@ namespace sql
 	{
 		if constexpr (Row::column::name == Name)
 		{
-			return r.value_;
+			return r.head();
 		}
 		else
 		{
-			return get<Name>(r.next_);
+			return get<Name>(r.tail());
 		}
 	}
 
@@ -84,11 +92,11 @@ namespace sql
 	{
 		if constexpr (Pos == 0)
 		{
-			return r.value_;
+			return r.head();
 		}
 		else
 		{
-			return get<Pos - 1>(r.next_);
+			return get<Pos - 1>(r.tail());
 		}
 	}
 
@@ -98,11 +106,11 @@ namespace sql
 	{
 		if constexpr (Row::column::name == Name)
 		{
-			r.value_ = value;
+			r.head() = value;
 		}
 		else
 		{
-			set<Name>(r.next_, value);
+			set<Name>(r.tail(), value);
 		}
 	}
 
@@ -146,14 +154,14 @@ namespace sql
 			}
 			else
 			{
-				d.value_ = r.value_;
-				merge(d.next_, l, r.next_);	
+				d.head() = r.head();
+				merge(d.tail(), l, r.tail());	
 			}
 		}
 		else
 		{
-			d.value_ = l.value_;
-			merge(d.next_, l.next_, r);
+			d.head() = l.head();
+			merge(d.tail(), l.tail(), r);
 		}
 	}
 
