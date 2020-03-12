@@ -89,7 +89,7 @@ namespace sql
 		row_type row_{};
 	};
 
-	template <cexpr::string Str, typename LeftSchema, typename RightSchema=void>
+	template <cexpr::string Str, typename... Schemas>
 	class query
 	{
 	private:
@@ -220,17 +220,23 @@ namespace sql
 			return recurse_logical<decltype(left), Row>();
 		}
 
-		template <std::size_t Pos>
-		static constexpr auto parse_schema()
+		template <std::size_t Pos, typename Schema, typename... Others>
+		static constexpr auto recurse_schemas()
 		{
-			if constexpr (tokens_[Pos] == "T0")
+			if constexpr (Pos == 0)
 			{
-				return ra::relation<LeftSchema>{};
+				return ra::relation<Schema>{};
 			}
 			else
 			{
-				return ra::relation<RightSchema>{};
+				return recurse_schemas<Pos - 1, Others...>();
 			}
+		}
+
+		template <std::size_t Pos>
+		static constexpr auto parse_schema()
+		{
+			return recurse_schemas<tokens_[Pos][1] - '0', Schemas...>();
 		}
 
 		template <std::size_t Pos, typename Left, typename Right>
@@ -271,20 +277,26 @@ namespace sql
 			}
 		}
 
+		template <cexpr::string Name, typename Schema, typename... Others>
+		static constexpr auto recurse_types()
+		{
+			if constexpr (sql::exists<Name, typename Schema::row_type>())
+			{
+				return decltype(sql::get<Name>(typename Schema::row_type{})){};
+			}
+			else
+			{
+				return recurse_types<Name, Others...>();
+			}
+		}
+
 		template <std::size_t Pos>
 		static constexpr auto column_type() noexcept
 		{
 			constexpr auto pos{ Pos % tokens_.count() };
 			constexpr cexpr::string<char, tokens_[pos].length() + 1> name{ tokens_[pos] };
 
-			if constexpr (sql::exists<name, typename LeftSchema::row_type>())
-			{
-				return decltype(sql::get<name>(typename LeftSchema::row_type{})){};
-			}
-			else
-			{
-				return decltype(sql::get<name>(typename RightSchema::row_type{})){};
-			}
+			return recurse_types<name, Schemas...>();
 		}
 
 		template <std::size_t Pos>
@@ -379,14 +391,9 @@ namespace sql
 	public:
 		using iterator = query_iterator<expression>;
 
-		static constexpr void seed(LeftSchema const& table) noexcept
+		static constexpr void seed(Schemas const&... tables) noexcept
 		{
-			expression::seed(table);
-		}
-
-		static constexpr void seed(LeftSchema const& left, RightSchema const& right) noexcept
-		{
-			expression::seed(left, right);
+			expression::seed(tables...);
 		}
 
 		static constexpr auto next()
@@ -399,14 +406,9 @@ namespace sql
 			expression::reset();
 		}
 
-		constexpr query(LeftSchema const& table) noexcept
+		constexpr query(Schemas const&... tables) noexcept
 		{
-			seed(table);
-		}
-
-		constexpr query(LeftSchema const& left, RightSchema const& right) noexcept
-		{
-			seed(left, right);
+			seed(tables...);
 		}
 
 		~query() noexcept
