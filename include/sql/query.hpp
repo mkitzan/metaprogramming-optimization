@@ -89,7 +89,7 @@ namespace sql
 		row_type row_{};
 	};
 
-	template <cexpr::string Str, typename Schema>
+	template <cexpr::string Str, typename LeftSchema, typename RightSchema=void>
 	class query
 	{
 	private:
@@ -165,7 +165,7 @@ namespace sql
 				constexpr cexpr::string<char, tokens_[pos].length() + 1> name{ tokens_[pos] };
 				constexpr auto node{ sql::operation<name, Row, typename Left::node, typename decltype(right)::node>{} };
 
-				return recurse_comp<TreeNode<right.pos, decltype(node)>, Row>();
+				return TreeNode<right.pos, decltype(node)>{};
 			}			
 		}
 
@@ -221,17 +221,53 @@ namespace sql
 		}
 
 		template <std::size_t Pos>
-		static constexpr auto parse_from() noexcept
+		static constexpr auto parse_schema()
 		{
-			if constexpr (Pos + 2 < tokens_.count() && (tokens_[Pos + 1] == "where" || tokens_[Pos + 1] == "WHERE"))
+			if constexpr (tokens_[Pos] == "T0")
 			{
-				constexpr auto predicate{ parse_logical<Pos + 2, typename Schema::row_type>() };
-				
-				return ra::selection<typename decltype(predicate)::node, ra::relation<Schema>>{};
+				return ra::relation<LeftSchema>{};
 			}
 			else
 			{
-				return ra::relation<Schema>{};	
+				return ra::relation<RightSchema>{};
+			}
+		}
+
+		template <std::size_t Pos, typename Left, typename Right>
+		static constexpr auto choose_join()
+		{
+			return ra::cross<Left, Right>{};
+		}
+
+		template <std::size_t Pos>
+		static constexpr auto parse_join() noexcept
+		{
+			if constexpr (Pos + 3 < tokens_.count() && tokens_[Pos + 2] == "join" || tokens_[Pos + 2] == "JOIN")
+			{
+				constexpr auto node{ choose_join<Pos + 1, decltype(parse_schema<Pos>()), decltype(parse_schema<Pos + 3>())>() };
+
+				return TreeNode<Pos + 4, decltype(node)>{};
+			}
+			else
+			{
+				return TreeNode<Pos + 1, decltype(parse_schema<Pos>())>{};
+			}
+		}
+
+		template <std::size_t Pos>
+		static constexpr auto parse_from() noexcept
+		{
+			constexpr auto root{ parse_join<Pos>() };
+
+			if constexpr (tokens_[root.pos] == "where" || tokens_[root.pos] == "WHERE")
+			{
+				constexpr auto predicate{ parse_logical<root.pos + 1, typename decltype(root)::node::output_type>() };
+				
+				return ra::selection<typename decltype(predicate)::node, typename decltype(root)::node>{};
+			}
+			else
+			{
+				return typename decltype(root)::node{};	
 			}
 		}
 
@@ -241,7 +277,14 @@ namespace sql
 			constexpr auto pos{ Pos % tokens_.count() };
 			constexpr cexpr::string<char, tokens_[pos].length() + 1> name{ tokens_[pos] };
 
-			return decltype(sql::get<name>(typename Schema::row_type{})){};
+			if constexpr (sql::exists<name, typename LeftSchema::row_type>())
+			{
+				return decltype(sql::get<name>(typename LeftSchema::row_type{})){};
+			}
+			else
+			{
+				return decltype(sql::get<name>(typename RightSchema::row_type{})){};
+			}
 		}
 
 		template <std::size_t Pos>
@@ -336,9 +379,14 @@ namespace sql
 	public:
 		using iterator = query_iterator<expression>;
 
-		static constexpr void seed(Schema const& table) noexcept
+		static constexpr void seed(LeftSchema const& table) noexcept
 		{
 			expression::seed(table);
+		}
+
+		static constexpr void seed(LeftSchema const& left, RightSchema const& right) noexcept
+		{
+			expression::seed(left, right);
 		}
 
 		static constexpr auto next()
@@ -351,9 +399,14 @@ namespace sql
 			expression::reset();
 		}
 
-		constexpr query(Schema const& table) noexcept
+		constexpr query(LeftSchema const& table) noexcept
 		{
 			seed(table);
+		}
+
+		constexpr query(LeftSchema const& left, RightSchema const& right) noexcept
+		{
+			seed(left, right);
 		}
 
 		~query() noexcept

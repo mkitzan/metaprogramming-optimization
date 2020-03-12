@@ -14,7 +14,7 @@ namespace ra
 		using input_type =  ra::unary<Input>::input_type;
 		using output_type = Output;
 
-		static inline auto next()
+		static auto next()
 		{
 			output_type dest{};
 			fold<output_type>(dest, Input::next());

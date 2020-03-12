@@ -15,7 +15,7 @@ namespace ra
 	public:
 		using output_type = Schema::const_iterator;
 
-		static inline auto const& next()
+		static auto const& next()
 		{
 			if (curr != end)
 			{

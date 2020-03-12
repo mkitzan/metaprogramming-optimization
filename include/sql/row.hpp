@@ -124,7 +124,7 @@ namespace sql
 		}
 		else
 		{
-			return col<Name, Row::next>();
+			return col<Name, typename Row::next>();
 		}
 	}
 
@@ -132,13 +132,13 @@ namespace sql
 	template <typename Left, typename Right>
 	constexpr auto link()
 	{
-		if constexpr (Left{} == sql::void_row{})
+		if constexpr (std::is_same<Left, sql::void_row>::value)
 		{
 			return Right{};
 		}
 		else
 		{
-			return sql::row<typename Left::column, decltype(link<Left::next, Right>())>{};
+			return sql::row<typename Left::column, decltype(link<typename Left::next, Right>())>{};
 		}
 	}
 
@@ -146,9 +146,9 @@ namespace sql
 	template <typename Dest, typename Left, typename Right>
 	constexpr void merge(Dest& d, Left const& l, Right const& r)
 	{
-		if constexpr (l == sql::void_row{})
+		if constexpr (std::is_same<Left, sql::void_row>::value)
 		{
-			if constexpr (r == sql::void_row{})
+			if constexpr (std::is_same<Right, sql::void_row>::value)
 			{
 				return;
 			}
@@ -162,6 +162,27 @@ namespace sql
 		{
 			d.head() = l.head();
 			merge(d.tail(), l.tail(), r);
+		}
+	}
+
+	// function to query whether a row type has a column name
+	template <cexpr::string Name, typename Row>
+	constexpr bool exists()
+	{
+		if constexpr (std::is_same<Row, sql::void_row>::value)
+		{
+			return false;
+		}
+		else
+		{
+			if constexpr (Row::column::name == Name)
+			{
+				return true;
+			}
+			else
+			{
+				return exists<Name, typename Row::next>();
+			}
 		}
 	}
 
