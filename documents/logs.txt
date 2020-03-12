@@ -15,23 +15,26 @@ January
 	Week 4
 		Python recursive descent infix parser (bbird)
 		Compile time string literal infix parser, variadic variables
-	Week 5
+February
+	Week 1
 		Recursive variadic schema and row classes
 		Support structured binding declarations and range loop
-	Week 6
+	Week 2
 		Basic unary relational algebra operators (pi, and rho)
 		Relational algebra terminal (relation) 
 		Changed architecture to template recursive (to support compile time parsing)
 		Changed schema to single vector (for performance)
 		Added infrastructure for indexes, binary RA operators, an sigma
-	Week 7
+	Week 3
 		Runtime recursive descent SQL parser/validator
-	Week 8
+	Week 4
 		Write up
-	Week 9
+March
+	Week 1
 		Constexpr template recursive recursive descent SQL parser up to "FROM"
-	Week 10
+	Week 2
 		Constexpr template recursive where predicate parser
+		Constexpr template recursive join parser
 		Triggered seg fault in GCC 9.2 regarding:
 			returning copy-elided constexpr object through
 			static constexpr function member with auto return type deduction into a
