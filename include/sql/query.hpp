@@ -41,12 +41,14 @@ namespace sql
 
 	} // namespace
 
+	// structured binding compliant iterator for query objects
 	template <typename Expr>
 	class query_iterator
 	{
 	public:
 		using row_type = Expr::output_type;
 
+		// seeds row datamember for first dereference
 		query_iterator(bool end) : end_{ end }, row_{}
 		{
 			operator++();
@@ -120,6 +122,7 @@ namespace sql
 			return tv == "or" || tv == "OR" || tv == "and" || tv == "AND";
 		}
 
+		// where predicate terminal parsing 
 		template <std::size_t Pos, typename Row>
 		static constexpr auto parse_terms() noexcept
 		{
@@ -151,6 +154,7 @@ namespace sql
 			}
 		}
 
+		// parses a single compare operation
 		template <typename Left, typename Row>
 		static constexpr auto recurse_comp() noexcept
 		{
@@ -169,6 +173,7 @@ namespace sql
 			}			
 		}
 
+		// descend further and attempt to parse a compare operation
 		template <std::size_t Pos, typename Row>
 		static constexpr auto parse_comp() noexcept
 		{
@@ -177,6 +182,7 @@ namespace sql
 			return recurse_comp<decltype(left), Row>();
 		}
 
+		// attempt to parse a negation operation then descend further
 		template <std::size_t Pos, typename Row>
 		static constexpr auto parse_negation() noexcept
 		{
@@ -194,6 +200,7 @@ namespace sql
 			}
 		}
 
+		// recursively parse chained boolean operations
 		template <typename Left, typename Row>
 		static constexpr auto recurse_logical() noexcept
 		{
@@ -212,6 +219,7 @@ namespace sql
 			}
 		}
 
+		// descend further then attempt to parse boolean operations
 		template <std::size_t Pos, typename Row>
 		static constexpr auto parse_logical() noexcept
 		{
@@ -220,6 +228,7 @@ namespace sql
 			return recurse_logical<decltype(left), Row>();
 		}
 
+		// find correct schema for terminal relation
 		template <std::size_t Pos, typename Schema, typename... Others>
 		static constexpr auto recurse_schemas()
 		{
@@ -233,18 +242,21 @@ namespace sql
 			}
 		}
 
+		// wrapper function to determine terminal relation (NOTE: max tables per query is 10 [0-9])
 		template <std::size_t Pos>
 		static constexpr auto parse_schema()
 		{
 			return recurse_schemas<tokens_[Pos][1] - '0', Schemas...>();
 		}
 
+		// stub which will choose the specific join RA node
 		template <std::size_t Pos, typename Left, typename Right>
 		static constexpr auto choose_join()
 		{
 			return ra::cross<Left, Right>{};
 		}
 
+		// parses join info if a join is present else returns the single relation terminal
 		template <std::size_t Pos>
 		static constexpr auto parse_join() noexcept
 		{
@@ -260,6 +272,7 @@ namespace sql
 			}
 		}
 
+		// starting point to parse everything after the from keyword
 		template <std::size_t Pos>
 		static constexpr auto parse_from() noexcept
 		{
@@ -277,6 +290,7 @@ namespace sql
 			}
 		}
 
+		// recursively searches all schemas for the a matching column
 		template <cexpr::string Name, typename Schema, typename... Others>
 		static constexpr auto recurse_types()
 		{
@@ -290,6 +304,7 @@ namespace sql
 			}
 		}
 
+		// wrapper to determine the type for the the column
 		template <std::size_t Pos>
 		static constexpr auto column_type() noexcept
 		{
@@ -299,6 +314,7 @@ namespace sql
 			return recurse_types<name, Schemas...>();
 		}
 
+		// searches for the token position of start of the next column in the token array
 		template <std::size_t Pos>
 		static constexpr auto next_column() noexcept
 		{
@@ -316,6 +332,7 @@ namespace sql
 			}
 		}
 
+		// search for if the column is renamed, and returns the position of the name change if so
 		template <std::size_t Pos, std::size_t Curr>
 		static constexpr auto find_rename() noexcept
 		{
@@ -333,6 +350,7 @@ namespace sql
 			}
 		}
 
+		// parses the column starting from Pos for all it's info (name, type, and pos of next column)
 		template <std::size_t Pos, bool Rename>
 		static constexpr auto parse_colinfo() noexcept
 		{
@@ -350,6 +368,7 @@ namespace sql
 			}
 		}
 
+		// recursively parse all columns projected/renamed in the query
 		template <std::size_t Pos, bool Rename>
 		static constexpr auto recurse_columns() noexcept
 		{
@@ -368,6 +387,7 @@ namespace sql
 			}
 		}
 
+		// wrapper to parse columns as a projection RA node
 		template <std::size_t Pos>
 		static constexpr auto parse_projection() noexcept
 		{
@@ -376,6 +396,7 @@ namespace sql
 			return ra::projection<typename decltype(projection)::node, decltype(parse_from<projection.pos + 1>())>{};
 		}
 
+		// wrapper to parse columns as a rename RA node
 		template <std::size_t Pos>
 		static constexpr auto parse_rename() noexcept
 		{
@@ -391,7 +412,7 @@ namespace sql
 	public:
 		using iterator = query_iterator<expression>;
 
-		static constexpr void seed(Schemas const&... tables) noexcept
+		static constexpr void seed(Schemas const&... tables)
 		{
 			expression::seed(tables...);
 		}
@@ -401,17 +422,17 @@ namespace sql
 			return expression::next();
 		}
 
-		static constexpr void reset() noexcept
+		static constexpr void reset()
 		{
 			expression::reset();
 		}
 
-		constexpr query(Schemas const&... tables) noexcept
+		constexpr query(Schemas const&... tables)
 		{
 			seed(tables...);
 		}
 
-		~query() noexcept
+		~query()
 		{
 			reset();
 		}
