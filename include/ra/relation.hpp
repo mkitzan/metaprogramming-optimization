@@ -13,7 +13,7 @@ namespace ra
 	class relation
 	{
 	public:
-		using output_type = Schema::const_iterator;
+		using output_type = Schema::row_type const&;
 
 		static auto const& next()
 		{
