@@ -9,7 +9,7 @@ namespace ra
 	struct data_end : std::exception
 	{};
 
-	template <typename Schema>
+	template <typename Schema, std::size_t Id>
 	class relation
 	{
 	public:
@@ -53,13 +53,13 @@ namespace ra
 		static Schema::const_iterator end;
 	};
 
-	template <typename Schema>
-	Schema::const_iterator relation<Schema>::curr{};
+	template <typename Schema, std::size_t Id>
+	Schema::const_iterator relation<Schema, Id>::curr{};
 
-	template <typename Schema>
-	Schema::const_iterator relation<Schema>::begin{};
+	template <typename Schema, std::size_t Id>
+	Schema::const_iterator relation<Schema, Id>::begin{};
 
-	template <typename Schema>
-	Schema::const_iterator relation<Schema>::end{};
+	template <typename Schema, std::size_t Id>
+	Schema::const_iterator relation<Schema, Id>::end{};
 
 } // namespace ra

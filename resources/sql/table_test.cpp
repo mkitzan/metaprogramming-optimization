@@ -40,7 +40,7 @@ int main()
 	left_schema left{ attrs };
 	right_schema right{ ids, names, balances };
 
-	for (query q{ left, right }; auto [year, balance, comment, attr] : q)
+	for (query q{ left, right }; auto const& [year, balance, comment, attr] : q)
 	{
 		std::cout << year << '\t' << balance << '\t' << comment << '\t' << attr << '\n';
 	}

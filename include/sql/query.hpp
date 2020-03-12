@@ -229,16 +229,16 @@ namespace sql
 		}
 
 		// find correct schema for terminal relation
-		template <std::size_t Pos, typename Schema, typename... Others>
+		template <std::size_t Pos, std::size_t Id, typename Schema, typename... Others>
 		static constexpr auto recurse_schemas()
 		{
 			if constexpr (Pos == 0)
 			{
-				return ra::relation<Schema>{};
+				return ra::relation<Schema, Id>{};
 			}
 			else
 			{
-				return recurse_schemas<Pos - 1, Others...>();
+				return recurse_schemas<Pos - 1, Id, Others...>();
 			}
 		}
 
@@ -246,7 +246,7 @@ namespace sql
 		template <std::size_t Pos>
 		static constexpr auto parse_schema()
 		{
-			return recurse_schemas<tokens_[Pos][1] - '0', Schemas...>();
+			return recurse_schemas<tokens_[Pos][1] - '0', Pos, Schemas...>();
 		}
 
 		// stub which will choose the specific join RA node
