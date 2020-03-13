@@ -140,7 +140,7 @@ namespace ra
 				for (;;)
 				{
 					auto const& row{ RightInput::next() };
-					row_cache[row.head()].push_back(row);
+					row_cache[row.head()].push_back(row.tail());
 				}
 			}
 			catch(ra::data_end const& e)
