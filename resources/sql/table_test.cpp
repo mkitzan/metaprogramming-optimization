@@ -23,7 +23,9 @@ namespace
 		>;
 	using query =
 		sql::query<
-			"select id as year, balance, name as comment, attr from T0 natural join T1 where id >= 1945 and not balance < 1500.0",
+			"select id as year, balance, name as comment, attr "
+			"from T0 natural join T1 "
+			"where id >= 1945 and not balance < 1500.0",
 			left_schema,
 			right_schema
 		>;
