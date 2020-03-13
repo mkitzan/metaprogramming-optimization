@@ -1,6 +1,8 @@
 #pragma once
 
 #include <type_traits>
+#include <unordered_map>
+#include <vector>
 
 #include "ra/operation.hpp"
 #include "ra/relation.hpp"
@@ -119,5 +121,63 @@ namespace ra
 			return join_type::output_row;
 		}
 	};
+
+	template <typename LeftInput, typename RightInput>
+	class natural : public ra::join<LeftInput, RightInput>
+	{
+		using join_type = ra::join<LeftInput, RightInput>;
+		using map_type = std::unordered_map<decltype(LeftInput::next().head()), std::vector<decltype(RightInput::next()) const&>>;
+	public:
+		using output_type = join_type::output_type;
+
+		template <typename... Inputs>
+		static void seed(Inputs const&... rs)
+		{
+			join_type::seed(rs...);
+			
+			try
+			{
+				for (;;)
+				{
+					auto const& row{ RightInput::next() };
+					row_cache[row.head()].push_back(row);
+				}
+			}
+			catch(ra::data_end const& e)
+			{
+				RightInput::reset();
+			}
+		}
+
+		static inline void reset()
+		{
+			join_type::reset();
+
+			for (auto& [_, rows] : row_cache)
+			{
+				rows.clear();
+			}
+		}
+
+		static auto& next()
+		{
+			while (row_cache[join_type::output_row.head()].empty())
+			{
+				copy(join_type::output_row, LeftInput::next());
+			}
+
+			auto& active{ row_cache[join_type::output_row.head()] };
+			copy(join_type::output_row, active.back());
+			active.pop_back();
+			
+			return join_type::output_row;
+		}
+
+	private:
+		static map_type row_cache;
+	};
+
+	template <typename LeftInput, typename RightInput>
+	typename natural<LeftInput, RightInput>::map_type natural<LeftInput, RightInput>::row_cache{};
 
 } // namespace ra

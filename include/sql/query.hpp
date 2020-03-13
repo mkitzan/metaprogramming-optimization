@@ -274,7 +274,14 @@ namespace sql
 		template <std::size_t Pos, typename Left, typename Right>
 		static constexpr auto choose_join()
 		{
-			return ra::cross<Left, Right>{};
+			if constexpr (tokens_[Pos] == "natural" || tokens_[Pos] == "NATURAL")
+			{
+				return ra::natural<Left, Right>{};
+			}
+			else
+			{
+				return ra::cross<Left, Right>{};	
+			}
 		}
 
 		// parses join info if a join is present else returns the single relation terminal
