@@ -11,14 +11,14 @@ namespace
 	using left_schema =
 		sql::schema<
 			sql::index<>,
-			sql::column<"attr", std::string>
+			sql::column<"id", int>,
+			sql::column<"name", std::string>,
+			sql::column<"balance", double>
 		>;
 	using right_schema =
 		sql::schema<
 			sql::index<>,
-			sql::column<"id", int>,
-			sql::column<"name", std::string>,
-			sql::column<"balance", double>
+			sql::column<"attr", std::string>
 		>;
 	using query =
 		sql::query<
@@ -29,16 +29,15 @@ namespace
 
 } // namespace
 
-
 int main()
 {
-	std::vector<std::string> attrs{ "corona", "virus" };
 	std::vector<int> ids{ 1914, 1945, 1985, 2020 };
 	std::vector<std::string> names{ "skip", "g++", "needs", "concepts" };
 	std::vector<double> balances{ 1357.24, 3254.65, 9135.68, 1829.38 };
+	std::vector<std::string> attrs{ "corona", "virus" };
 
-	left_schema left{ attrs };
-	right_schema right{ ids, names, balances };
+	left_schema left{ ids, names, balances };
+	right_schema right{ attrs };
 
 	for (query q{ left, right }; auto const& [year, balance, comment, attr] : q)
 	{

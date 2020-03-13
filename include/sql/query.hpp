@@ -364,7 +364,7 @@ namespace sql
 			}
 			else
 			{
-				return ColInfo<decltype(column_type<Pos>()), Pos, next>{};
+				return ColInfo<std::remove_const_t<decltype(column_type<Pos>())>, Pos, next>{};
 			}
 		}
 
@@ -383,7 +383,7 @@ namespace sql
 				constexpr cexpr::string<char, tokens_[info.name].length() + 1> name{ tokens_[info.name] };
 				constexpr auto col{ sql::column<name, typename decltype(info)::type>{} };
 
-				return TreeNode<child.pos, sql::row<decltype(col), std::remove_cvref_t<typename decltype(child)::node>>>{};
+				return TreeNode<child.pos, sql::row<std::remove_const_t<decltype(col)>, std::remove_const_t<typename decltype(child)::node>>>{};
 			}
 		}
 

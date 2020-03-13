@@ -27,22 +27,22 @@ namespace sql
 		row(column::type const& val, ColTs const&... vals) : value_{ val }, next_{ vals... }
 		{}
 
-		inline next const& tail() const
+		inline constexpr next const& tail() const
 		{
 			return next_;
 		}
 
-		inline next& tail()
+		inline constexpr next& tail()
 		{
 			return next_;
 		}
 
-		inline column::type const& head() const
+		inline constexpr column::type const& head() const
 		{
 			return value_;
 		}
 
-		inline column::type& head()
+		inline constexpr column::type& head()
 		{
 			return value_;
 		}
@@ -128,23 +128,68 @@ namespace sql
 		}
 	}
 
-	// function to query the type of two rows merged together
-	template <typename Left, typename Right>
-	constexpr auto link()
+	namespace
 	{
-		if constexpr (std::is_same<Left, sql::void_row>::value)
+		
+		template <typename Left, typename Right>
+		constexpr auto recr_merge()
 		{
-			return Right{};
+			if constexpr (std::is_same<Left, sql::void_row>::value)
+			{
+				return Right{};
+			}
+			else
+			{
+				return sql::row<typename Left::column, decltype(recr_merge<typename Left::next, Right>())>{};
+			}
+		}
+
+		template <typename Dest, typename Row>
+		void recr_copy(Dest& dest, Row const& src)
+		{
+			if constexpr (std::is_same<Row, sql::void_row>::value)
+			{
+				return;
+			}
+			else
+			{
+				dest.head() = src.head();
+				recr_copy(dest.tail(), src.tail());
+			}
+		}
+
+	} // namespace
+
+	// function merge two row types where key maybe a shared first column
+	template <typename Left, typename Right>
+	inline constexpr auto merge()
+	{
+		if constexpr (Left::column::name == Right::column::name)
+		{
+			return recr_merge<Left, typename Right::next>();
 		}
 		else
 		{
-			return sql::row<typename Left::column, decltype(link<typename Left::next, Right>())>{};
+			return recr_merge<Left, Right>();
 		}
 	}
 
 	// function to join two rows into a merge row
+	template <typename Dest, typename Row>
+	inline void copy(Dest& dest, Row const& src)
+	{
+		if constexpr (Dest::column::name == Row::column::name)
+		{
+			recr_copy(dest, src);
+		}
+		else
+		{
+			copy(dest.tail(), src);
+		}
+	}
+
 	template <typename Dest, typename Left, typename Right>
-	constexpr void merge(Dest& d, Left const& l, Right const& r)
+	void copy_v2(Dest& d, Left const& l, Right const& r)
 	{
 		if constexpr (std::is_same<Left, sql::void_row>::value)
 		{
@@ -155,13 +200,13 @@ namespace sql
 			else
 			{
 				d.head() = r.head();
-				merge(d.tail(), l, r.tail());	
+				copy_v2(d.tail(), l, r.tail());	
 			}
 		}
 		else
 		{
 			d.head() = l.head();
-			merge(d.tail(), l.tail(), r);
+			copy_v2(d.tail(), l.tail(), r);
 		}
 	}
 

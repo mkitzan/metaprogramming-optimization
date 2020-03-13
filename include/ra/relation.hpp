@@ -28,7 +28,7 @@ namespace ra
 		}
 		
 		template <typename Input, typename... Inputs>
-		static void seed(Input const& r, Inputs... rs)
+		static void seed(Input const& r, Inputs const&... rs)
 		{
 			if constexpr (std::is_same<Input, Schema>::value)
 			{

@@ -10,16 +10,15 @@ namespace ra
 	template <typename Output, typename Input>
 	class rename : public ra::unary<Input>
 	{
+		using input_type = typename ra::unary<Input>::input_type;
 	public:
-		using input_type = ra::unary<Input>::input_type;
 		using output_type = Output;
 
-		static auto next()
+		static auto& next()
 		{
-			output_type dest{};
-			fold<output_type, input_type>(dest, Input::next());
+			fold<output_type, input_type>(output_row, Input::next());
 			
-			return dest;
+			return output_row;
 		}
 
 	private:
@@ -36,6 +35,11 @@ namespace ra
 				fold<typename Dest::next, typename Src::next>(dest.tail(), src.tail());
 			}
 		}
+
+		static output_type output_row;
 	};
+
+	template <typename Output, typename Input>
+	typename rename<Output, Input>::output_type rename<Output, Input>::output_row{};
 	
 } // namespace ra

@@ -8,20 +8,20 @@ namespace ra
 	template <typename Predicate, typename Input>
 	class selection : public ra::unary<Input>
 	{
+		using input_type = typename ra::unary<Input>::input_type;
 	public:
-		using input_type = ra::unary<Input>::input_type;
 		using output_type = input_type;		
 
-		static auto next()
+		static auto& next()
 		{
-			auto row{ Input::next() };
+			auto& output_row = Input::next();
 
-			while(!Predicate::eval(row))
+			while(!Predicate::eval(output_row))
 			{
-				row = Input::next();
+				output_row = Input::next();
 			}
 
-			return row;
+			return output_row;
 		}
 	};
 
