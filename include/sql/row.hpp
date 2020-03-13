@@ -188,28 +188,6 @@ namespace sql
 		}
 	}
 
-	template <typename Dest, typename Left, typename Right>
-	void copy_v2(Dest& d, Left const& l, Right const& r)
-	{
-		if constexpr (std::is_same<Left, sql::void_row>::value)
-		{
-			if constexpr (std::is_same<Right, sql::void_row>::value)
-			{
-				return;
-			}
-			else
-			{
-				d.head() = r.head();
-				copy_v2(d.tail(), l, r.tail());	
-			}
-		}
-		else
-		{
-			d.head() = l.head();
-			copy_v2(d.tail(), l.tail(), r);
-		}
-	}
-
 	// function to query whether a row type has a column name
 	template <cexpr::string Name, typename Row>
 	constexpr bool exists()
