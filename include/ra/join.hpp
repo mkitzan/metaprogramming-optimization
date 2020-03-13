@@ -126,7 +126,9 @@ namespace ra
 	class natural : public ra::join<LeftInput, RightInput>
 	{
 		using join_type = ra::join<LeftInput, RightInput>;
-		using map_type = std::unordered_map<decltype(LeftInput::next().head()), std::vector<decltype(RightInput::next()) const&>>;
+		using key_type = std::remove_cvref_t<decltype(LeftInput::next().head())>;
+		using value_type = std::vector<std::remove_cvref_t<decltype(RightInput::next().tail())>>;
+		using map_type = std::unordered_map<key_type, value_type>;
 	public:
 		using output_type = join_type::output_type;
 
@@ -135,49 +137,55 @@ namespace ra
 		{
 			join_type::seed(rs...);
 			
-			try
+			if (row_cache.empty())
 			{
-				for (;;)
+				try
 				{
-					auto const& row{ RightInput::next() };
-					row_cache[row.head()].push_back(row.tail());
+					for (;;)
+					{
+						auto const& row{ RightInput::next() };
+						row_cache[row.head()].push_back(row.tail());
+					}
+				}
+				catch(ra::data_end const& e)
+				{
+					RightInput::reset();
 				}
 			}
-			catch(ra::data_end const& e)
-			{
-				RightInput::reset();
-			}
-		}
 
-		static inline void reset()
-		{
-			join_type::reset();
-
-			for (auto& [_, rows] : row_cache)
-			{
-				rows.clear();
-			}
+			auto const& active{ row_cache[join_type::output_row.head()] };
+			curr = active.cbegin();
+			end = active.cend();
 		}
 
 		static auto& next()
 		{
-			while (row_cache[join_type::output_row.head()].empty())
+			while (curr == end)
 			{
 				copy(join_type::output_row, LeftInput::next());
+				auto const& active{ row_cache[join_type::output_row.head()] };
+				curr = active.cbegin();
+				end = active.cend();
 			}
 
-			auto& active{ row_cache[join_type::output_row.head()] };
-			copy(join_type::output_row, active.back());
-			active.pop_back();
+			copy(join_type::output_row, *curr++);
 			
 			return join_type::output_row;
 		}
 
 	private:
 		static map_type row_cache;
+		static value_type::const_iterator curr;
+		static value_type::const_iterator end;
 	};
 
 	template <typename LeftInput, typename RightInput>
 	typename natural<LeftInput, RightInput>::map_type natural<LeftInput, RightInput>::row_cache{};
+
+	template <typename LeftInput, typename RightInput>
+	typename natural<LeftInput, RightInput>::value_type::const_iterator natural<LeftInput, RightInput>::curr;
+
+	template <typename LeftInput, typename RightInput>
+	typename natural<LeftInput, RightInput>::value_type::const_iterator natural<LeftInput, RightInput>::end;
 
 } // namespace ra

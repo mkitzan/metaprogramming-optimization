@@ -18,11 +18,12 @@ namespace
 	using right_schema =
 		sql::schema<
 			sql::index<>,
+			sql::column<"id", int>,
 			sql::column<"attr", std::string>
 		>;
 	using query =
 		sql::query<
-			"select id as year, balance, name as comment, attr from T0 cross join T1 where id >= 1945 and not balance < 1500.0",
+			"select id as year, balance, name as comment, attr from T0 natural join T1 where id >= 1945 and not balance < 1500.0",
 			left_schema,
 			right_schema
 		>;
@@ -31,13 +32,14 @@ namespace
 
 int main()
 {
-	std::vector<int> ids{ 1914, 1945, 1985, 2020 };
+	std::vector<int> left_ids{ 1914, 1945, 1985, 2020 };
 	std::vector<std::string> names{ "skip", "g++", "needs", "concepts" };
 	std::vector<double> balances{ 1357.24, 3254.65, 9135.68, 1829.38 };
-	std::vector<std::string> attrs{ "corona", "virus" };
+	std::vector<int> right_ids{ 1945, 1985, 1945, 1985 };
+	std::vector<std::string> attrs{ "corona", "virus", "COBRA", "Normandy" };
 
-	left_schema left{ ids, names, balances };
-	right_schema right{ attrs };
+	left_schema left{ left_ids, names, balances };
+	right_schema right{ right_ids, attrs };
 
 	for (query q{ left, right }; auto const& [year, balance, comment, attr] : q)
 	{
