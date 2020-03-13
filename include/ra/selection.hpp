@@ -4,7 +4,7 @@
 
 namespace ra
 {
-	
+
 	template <typename Predicate, typename Input>
 	class selection : public ra::unary<Input>
 	{

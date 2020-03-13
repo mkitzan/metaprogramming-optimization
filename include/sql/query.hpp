@@ -21,6 +21,7 @@
 namespace sql
 {
 
+	// anonymous namespace to hold helper data structures and functions
 	namespace
 	{
 
@@ -38,6 +39,53 @@ namespace sql
 			static constexpr std::size_t name = Name;
 			static constexpr std::size_t next = Next;
 		};
+
+		template <cexpr::string Name, typename Row>
+		constexpr bool exists() noexcept
+		{
+			if constexpr (std::is_same<Row, sql::void_row>::value)
+			{
+				return false;
+			}
+			else
+			{
+				if constexpr (Row::column::name == Name)
+				{
+					return true;
+				}
+				else
+				{
+					return exists<Name, typename Row::next>();
+				}
+			}
+		}
+
+		constexpr bool isintegral(std::string_view const& tv) noexcept
+		{
+			bool result{ false };
+
+			for (auto c : tv)
+			{
+				result |= (c == '.');
+			}
+
+			return !result;
+		}
+
+		constexpr bool isdigit(char c) noexcept
+		{
+			return c == '-' || c == '.' || (c >= '0' && c <= '9');
+		}
+
+		constexpr bool iscomp(std::string_view const& tv) noexcept
+		{
+			return tv == "=" || tv == "!=" || tv == "<>" || tv[0] == '<' || tv[0] == '>';
+		}
+
+		constexpr bool islogical(std::string_view const& tv) noexcept
+		{
+			return tv == "or" || tv == "OR" || tv == "and" || tv == "AND";
+		}
 
 	} // namespace
 
@@ -95,33 +143,6 @@ namespace sql
 	class query
 	{
 	private:
-		static constexpr bool isintegral(std::string_view const& tv) noexcept
-		{
-			bool result{ false };
-
-			for (auto c : tv)
-			{
-				result |= (c == '.');
-			}
-
-			return !result;
-		}
-
-		static constexpr bool isdigit(char c) noexcept
-		{
-			return c == '-' || c == '.' || (c >= '0' && c <= '9');
-		}
-
-		static constexpr bool iscomp(std::string_view const& tv) noexcept
-		{
-			return tv == "=" || tv == "!=" || tv == "<>" || tv[0] == '<' || tv[0] == '>';
-		}
-
-		static constexpr bool islogical(std::string_view const& tv) noexcept
-		{
-			return tv == "or" || tv == "OR" || tv == "and" || tv == "AND";
-		}
-
 		// where predicate terminal parsing 
 		template <std::size_t Pos, typename Row>
 		static constexpr auto parse_terms() noexcept
