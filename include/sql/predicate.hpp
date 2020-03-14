@@ -28,46 +28,42 @@ namespace sql
 	{
 		static constexpr bool eval(Row const& row)
 		{
-			bool result{};
-
 			if constexpr (Op == "=")
 			{
-				result = Left::eval(row) == Right::eval(row);
+				return Left::eval(row) == Right::eval(row);
 			}
 			else if constexpr (Op == ">")
 			{
-				result = Left::eval(row) > Right::eval(row);
+				return Left::eval(row) > Right::eval(row);
 			}
 			else if constexpr(Op == "<")
 			{
-				result = Left::eval(row) < Right::eval(row);
+				return Left::eval(row) < Right::eval(row);
 			}
 			else if constexpr(Op == ">=")
 			{
-				result = Left::eval(row) >= Right::eval(row);
+				return Left::eval(row) >= Right::eval(row);
 			}
 			else if constexpr(Op == "<=")
 			{
-				result = Left::eval(row) <= Right::eval(row);
+				return Left::eval(row) <= Right::eval(row);
 			}
 			else if constexpr(Op == "!=" || Op == "<>")
 			{
-				result = Left::eval(row) != Right::eval(row);
+				return Left::eval(row) != Right::eval(row);
 			}
 			else if constexpr(Op == "and" || Op == "AND")
 			{
-				result = Left::eval(row) && Right::eval(row);
+				return Left::eval(row) && Right::eval(row);
 			}
 			else if constexpr(Op == "or" || Op == "OR")
 			{
-				result = Left::eval(row) || Right::eval(row);
+				return Left::eval(row) || Right::eval(row);
 			}
 			else if constexpr(Op == "not" || Op == "NOT")
 			{
-				result = !Left::eval(row);
+				return !Left::eval(row);
 			}
-
-			return result;
 		}
 	};
 
