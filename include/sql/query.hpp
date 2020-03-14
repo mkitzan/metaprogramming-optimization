@@ -474,29 +474,14 @@ namespace sql
 	public:
 		using iterator = query_iterator<expression>;
 
-		static constexpr void seed(Schemas const&... tables)
+		constexpr query(Schemas const&... tables)
 		{
 			expression::seed(tables...);
 		}
 
-		static constexpr auto next()
-		{
-			return expression::next();
-		}
-
-		static constexpr void reset()
-		{
-			expression::reset();
-		}
-
-		constexpr query(Schemas const&... tables)
-		{
-			seed(tables...);
-		}
-
 		~query()
 		{
-			reset();
+			expression::reset();
 		}
 
 		constexpr iterator begin()
