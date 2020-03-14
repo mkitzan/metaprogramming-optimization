@@ -10,6 +10,8 @@ namespace sql
 	namespace
 	{
 
+		// shim to allow all value types like double or float
+		//	to be used as non-type template parameters.
 		template <typename ValT>
 		struct number
 		{
@@ -86,39 +88,5 @@ namespace sql
 			return Const.value;
 		}
 	};
-
-	template <typename ValT, typename CharT, std::size_t N>
-	constexpr number<ValT> convert(cexpr::string<CharT, N> const& str)
-	{
-		auto curr{ str.cbegin() }, end{ str.cend() };
-		constexpr CharT nul{ '\0' }, dot{ '.' }, zro{ '0' }, min{ '-' };
-		ValT acc{}, sign{ 1 }, scalar{ 10 };
-
-		if (*curr == min)
-		{
-			sign = -1;
-			++curr;
-		}
-
-		while (curr != end && *curr != dot)
-		{
-			acc = (acc * scalar) + (*curr - zro);
-			++curr;
-		}
-
-		if (curr != end && *curr == dot)
-		{
-			scalar = 1;
-			++curr;
-
-			while(curr != end)
-			{
-				acc += (*curr - zro) * (scalar /= ValT{ 10 });
-				++curr;
-			}
-		}
-
-		return number<ValT>{ acc * sign };
-	}
 
 } // namespace sql
