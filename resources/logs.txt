@@ -38,4 +38,7 @@ March
 		Triggered seg fault in GCC 9.2 regarding:
 			returning copy-elided constexpr object through
 			static constexpr function member with auto return type deduction into a
-			constexpr object template non-type parameter 
+			constexpr object template non-type parameter
+	Week 3
+		Implemented natural join and refactored code base
+		Added data set for testing
