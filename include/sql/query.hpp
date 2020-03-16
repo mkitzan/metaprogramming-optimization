@@ -43,7 +43,7 @@ namespace sql
 		template <cexpr::string Name, typename Row>
 		constexpr bool exists() noexcept
 		{
-			if constexpr (std::is_same<Row, sql::void_row>::value)
+			if constexpr (std::is_same_v<Row, sql::void_row>)
 			{
 				return false;
 			}

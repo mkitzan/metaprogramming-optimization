@@ -19,7 +19,7 @@ namespace sql
 		using row_type = sql::variadic_row<Cols...>::row_type;
 		using container = typename
 			std::conditional_t<
-				std::is_same<Index, sql::index<>>::value,
+				std::is_same_v<Index, sql::index<>>,
 				std::vector<row_type>,
 				std::multiset<row_type, typename Index::template comp<row_type>>
 			>;

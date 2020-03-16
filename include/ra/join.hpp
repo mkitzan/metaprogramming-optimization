@@ -18,7 +18,7 @@ namespace ra
 		template <typename Left, typename Right>
 		constexpr auto recr_merge()
 		{
-			if constexpr (std::is_same<Left, sql::void_row>::value)
+			if constexpr (std::is_same_v<Left, sql::void_row>)
 			{
 				return Right{};
 			}
@@ -44,7 +44,7 @@ namespace ra
 		template <typename Dest, typename Row>
 		constexpr void recr_copy(Dest& dest, Row const& src)
 		{
-			if constexpr (std::is_same<Row, sql::void_row>::value)
+			if constexpr (std::is_same_v<Row, sql::void_row>)
 			{
 				return;
 			}

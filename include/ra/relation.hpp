@@ -30,7 +30,7 @@ namespace ra
 		template <typename Input, typename... Inputs>
 		static void seed(Input const& r, Inputs const&... rs)
 		{
-			if constexpr (std::is_same<Input, Schema>::value)
+			if constexpr (std::is_same_v<Input, Schema>)
 			{
 				curr = r.begin();
 				begin = r.begin();
