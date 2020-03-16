@@ -128,7 +128,7 @@ namespace sql
 	class query_iterator
 	{
 	public:
-		using row_type = Expr::output_type;
+		using row_type = std::remove_cvref_t<typename Expr::output_type>;
 
 		// seeds row datamember for first dereference
 		query_iterator(bool end) : end_{ end }, row_{}
@@ -322,7 +322,7 @@ namespace sql
 		template <std::size_t Pos>
 		static constexpr auto parse_join() noexcept
 		{
-			if constexpr (Pos + 3 < tokens_.count() && tokens_[Pos + 2] == "join" || tokens_[Pos + 2] == "JOIN")
+			if constexpr (Pos + 3 < tokens_.count() && (tokens_[Pos + 2] == "join" || tokens_[Pos + 2] == "JOIN"))
 			{
 				constexpr auto node{ choose_join<Pos + 1, decltype(parse_schema<Pos>()), decltype(parse_schema<Pos + 3>())>() };
 
@@ -340,7 +340,7 @@ namespace sql
 		{
 			constexpr auto root{ parse_join<Pos>() };
 
-			if constexpr (tokens_[root.pos] == "where" || tokens_[root.pos] == "WHERE")
+			if constexpr (root.pos + 1 < tokens_.count() && (tokens_[root.pos] == "where" || tokens_[root.pos] == "WHERE"))
 			{
 				constexpr auto predicate{ parse_logical<root.pos + 1, typename decltype(root)::node::output_type>() };
 				

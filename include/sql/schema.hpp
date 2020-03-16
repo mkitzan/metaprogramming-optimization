@@ -69,6 +69,16 @@ namespace sql
 			}
 		}
 
+		void insert(row_type const& row)
+		{
+			table_.push_back(row);
+		}
+
+		void insert(row_type&& row)
+		{
+			table_.push_back(std::forward<row_type>(row));
+		}
+
 		inline const_iterator begin() const
 		{
 			return table_.begin();

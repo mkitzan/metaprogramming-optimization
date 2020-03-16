@@ -64,7 +64,7 @@ namespace
 				file >> row.head();
 			}
 
-			fill<typename Row::next>(file, row.tail());
+			fill<typename Row::next, Delim>(file, row.tail());
 		}
 	}
 
@@ -81,6 +81,12 @@ Schema load(std::string const& data)
 	{
 		fill<typename Schema::row_type, Delim>(file, row);
 		table.insert(std::move(row));
+
+		// in case last stream extraction did not remove newline
+		if (file.get() != '\n')
+		{
+			file.unget();
+		}
 	}
 
 	return table;

@@ -13,9 +13,9 @@ namespace ra
 	class relation
 	{
 	public:
-		using output_type = Schema::row_type const&;
+		using output_type = Schema::row_type&;
 
-		static auto const& next()
+		static auto& next()
 		{
 			if (curr != end)
 			{
