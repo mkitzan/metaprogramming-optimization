@@ -56,7 +56,7 @@ namespace
 				}
 				else
 				{
-					std::getline(file, row.head(), Delim);	
+					std::getline(file, row.head(), Delim);
 				}
 			}
 			else

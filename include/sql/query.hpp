@@ -467,9 +467,44 @@ namespace sql
 			return ra::rename<typename decltype(rename)::node, decltype(parse_projection<Pos>())>{};
 		}
 
+		template <std::size_t Pos>
+		static constexpr bool has_rename() noexcept
+		{
+			if constexpr (tokens_[Pos] == "from" || tokens_[Pos] == "FROM")
+			{
+				return false;
+			}
+			else if constexpr (tokens_[Pos] == "as" || tokens_[Pos] == "AS")
+			{
+				return true;
+			}
+			else
+			{
+				return has_rename<Pos + 1>();
+			}
+		};
+
+		// decide RA node to root the expression tree
+		template <std::size_t Pos>
+		static constexpr auto parse_root() noexcept
+		{
+			if constexpr (tokens_[Pos] == "*")
+			{
+				return parse_from<Pos + 2>();
+			}
+			else if constexpr (has_rename<Pos + 1>())
+			{
+				return parse_projection<Pos>();
+			}
+			else
+			{
+				return parse_rename<Pos>();
+			}
+		}
+
 		static constexpr sql::tokens<char, sql::preprocess(Str)> tokens_{ Str };
 
-		using expression = decltype(parse_rename<1>());
+		using expression = decltype(parse_root<1>());
 	
 	public:
 		using iterator = query_iterator<expression>;
