@@ -1,6 +1,5 @@
 #pragma once
 
-#include <fstream>
 #include <string>
 #include <type_traits>
 
@@ -38,56 +37,8 @@ using collected =
 		sql::column<"pages", unsigned>
 	>;
 
-const std::string data_folder{ "../data/" };
-
-namespace
-{
-
-	template <typename Row, char Delim>
-	void fill(std::fstream& file, Row& row)
-	{
-		if constexpr (!std::is_same_v<Row, sql::void_row>)
-		{
-			if constexpr (std::is_same_v<typename Row::column::type, std::string>)
-			{
-				if constexpr (std::is_same_v<typename Row::next, sql::void_row>)
-				{
-					std::getline(file, row.head());
-				}
-				else
-				{
-					std::getline(file, row.head(), Delim);
-				}
-			}
-			else
-			{
-				file >> row.head();
-			}
-
-			fill<typename Row::next, Delim>(file, row.tail());
-		}
-	}
-
-} // namespace
-
-template <typename Schema, char Delim>
-Schema load(std::string const& data)
-{
-	auto file{ std::fstream(data_folder + data) };
-	Schema table{};
-	typename Schema::row_type row{};
-
-	while (file)
-	{
-		fill<typename Schema::row_type, Delim>(file, row);
-		table.insert(std::move(row));
-
-		// in case last stream extraction did not remove newline
-		if (file.get() != '\n')
-		{
-			file.unget();
-		}
-	}
-
-	return table;
-}
+const std::string data_folder{ "./data/" };
+const std::string books_data{ "books-table.tsv" };
+const std::string stories_data{ "stories-table.tsv" };
+const std::string authored_data{ "authored-table.tsv" };
+const std::string collected_data{ "collected-table.tsv" };

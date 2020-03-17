@@ -1,9 +1,10 @@
 #pragma once
 
+#include <fstream>
+#include <set>
 #include <type_traits>
 #include <utility>
 #include <vector>
-#include <set>
 
 #include "sql/column.hpp"
 #include "sql/index.hpp"
@@ -92,5 +93,58 @@ namespace sql
 	private:
 		container table_;
 	};
+
+	
+namespace
+{
+
+	template <typename Row, char Delim>
+	void fill(std::fstream& file, Row& row)
+	{
+		if constexpr (!std::is_same_v<Row, sql::void_row>)
+		{
+			if constexpr (std::is_same_v<typename Row::column::type, std::string>)
+			{
+				if constexpr (std::is_same_v<typename Row::next, sql::void_row>)
+				{
+					std::getline(file, row.head());
+				}
+				else
+				{
+					std::getline(file, row.head(), Delim);
+				}
+			}
+			else
+			{
+				file >> row.head();
+			}
+
+			fill<typename Row::next, Delim>(file, row.tail());
+		}
+	}
+
+} // namespace
+
+template <typename Schema, char Delim>
+Schema load(std::string const& data)
+{
+	auto file{ std::fstream(data) };
+	Schema table{};
+	typename Schema::row_type row{};
+
+	while (file)
+	{
+		fill<typename Schema::row_type, Delim>(file, row);
+		table.insert(std::move(row));
+
+		// in case last stream extraction did not remove newline
+		if (file.get() != '\n')
+		{
+			file.unget();
+		}
+	}
+
+	return table;
+}
 
 } // namespace sql
