@@ -32,7 +32,7 @@ using authored =
 using collected =
 	sql::schema<
 		sql::index<>,
-		sql::column<"story", std::string>,
+		sql::column<"title", std::string>,
 		sql::column<"collection", std::string>,
 		sql::column<"pages", unsigned>
 	>;
