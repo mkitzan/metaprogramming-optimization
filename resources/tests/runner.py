@@ -18,6 +18,9 @@ def main():
 			for line in stream:
 				res = "Failed"
 			print("Test " + str(num) + ":\t" + res + "\n\t" + query)
+			if res == "Failed":
+				exit()
+			num += 1
 
 if __name__ == "__main__":
 	main()

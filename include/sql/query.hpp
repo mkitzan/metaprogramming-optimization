@@ -61,7 +61,7 @@ namespace sql
 		}
 
 		template <typename ValT, typename CharT, std::size_t N>
-		constexpr number<ValT> convert(cexpr::string<CharT, N> const& str)
+		constexpr value<ValT> convert(cexpr::string<CharT, N> const& str)
 		{
 			auto curr{ str.cbegin() }, end{ str.cend() };
 			constexpr CharT nul{ '\0' }, dot{ '.' }, zro{ '0' }, min{ '-' };
@@ -91,7 +91,7 @@ namespace sql
 				}
 			}
 
-			return number<ValT>{ acc * sign };
+			return value<ValT>{ acc * sign };
 		}
 
 		constexpr bool isintegral(std::string_view const& tv) noexcept
@@ -192,7 +192,7 @@ namespace sql
 				constexpr auto pos{ Pos + 1 % tokens_.count() };
 				constexpr cexpr::string<char, tokens_[pos].length() + 1> name{ tokens_[pos] };
 
-				return TreeNode<Pos + 3, sql::constant<name, Row>>{};
+				return TreeNode<Pos + 3, sql::constant<value<decltype(name)>{ name }, Row>>{};
 			}
 			else if constexpr (isdigit(tokens_[Pos][0]))
 			{
@@ -224,7 +224,7 @@ namespace sql
 				constexpr cexpr::string<char, tokens_[pos].length() + 1> name{ tokens_[pos] };
 				constexpr auto node{ sql::operation<name, Row, typename Left::node, typename decltype(right)::node>{} };
 
-				return TreeNode<right.pos, decltype(node)>{};
+				return TreeNode<right.pos, std::remove_cvref_t<decltype(node)>>{};
 			}			
 		}
 
@@ -270,7 +270,7 @@ namespace sql
 				constexpr cexpr::string<char, tokens_[pos].length() + 1> name{ tokens_[pos] };
 				constexpr auto node{ sql::operation<name, Row, typename Left::node, typename decltype(right)::node>{} };
 
-				return recurse_logical<TreeNode<right.pos, decltype(node)>, Row>();
+				return recurse_logical<TreeNode<right.pos, std::remove_cvref_t<decltype(node)>>, Row>();
 			}
 		}
 
@@ -342,7 +342,7 @@ namespace sql
 
 			if constexpr (root.pos + 1 < tokens_.count() && (tokens_[root.pos] == "where" || tokens_[root.pos] == "WHERE"))
 			{
-				constexpr auto predicate{ parse_logical<root.pos + 1, typename decltype(root)::node::output_type>() };
+				constexpr auto predicate{ parse_logical<root.pos + 1, std::remove_cvref_t<typename decltype(root)::node::output_type>>() };
 				
 				return ra::selection<typename decltype(predicate)::node, typename decltype(root)::node>{};
 			}

@@ -77,7 +77,21 @@ namespace sql
 				last = curr;
 				last = next(last, end);
 
-				tokens_[i++] = token_view{ curr, (std::size_t) last - (std::size_t) curr };
+				if (*curr == '\"' || *curr == '\'')
+				{
+					tokens_[i++] = token_view{ curr, 1 };
+					for (char c{ *curr++ }; last != end && *last != c; ++last);
+				}
+
+				auto len{ reinterpret_cast<std::size_t>(last) - reinterpret_cast<std::size_t>(curr) };
+				tokens_[i++] = token_view{ curr, len };
+
+				if (*last == '\"' || *last == '\'')
+				{
+					tokens_[i++] = token_view{ last, 1 };
+					++last;
+				}
+
 				curr = last;
 			}
 		}

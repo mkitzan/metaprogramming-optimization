@@ -120,6 +120,18 @@ namespace cexpr
             return i == N;
         }
 
+		template <typename OtherCharT>
+    	bool operator==(std::basic_string<OtherCharT> const& other) const
+        {
+            return other == string_;
+        }
+
+		template <typename OtherCharT>
+    	bool operator!=(std::basic_string<OtherCharT> const& other) const
+        {
+            return !(other == string_);
+        }
+
     private:
         CharT string_[N];
         std::size_t size_;
@@ -129,17 +141,15 @@ namespace cexpr
     string(const CharT[N]) -> string<CharT, N>;
 
     template <typename CharT, std::size_t N>
-    constexpr bool operator==(std::basic_string<CharT> const& str, string<CharT, N> const& cstr)
+    bool operator==(std::basic_string<CharT> const& str, string<CharT, N> const& cstr)
     {
-        if (str.size() != N)
-        {
-            return false;
-        }
+        return cstr == str;
+    }
 
-        std::size_t i{};
-        for (; i < N && str[i] == cstr[i]; ++i);
-
-        return i == N;
+	template <typename CharT, std::size_t N>
+    bool operator!=(std::basic_string<CharT> const& str, string<CharT, N> const& cstr)
+    {
+        return cstr != str;
     }
 
 } // namespace cexpr

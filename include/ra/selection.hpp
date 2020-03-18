@@ -14,7 +14,7 @@ namespace ra
 
 		static auto& next()
 		{
-			auto& output_row = Input::next();
+			output_row = Input::next();
 
 			while(!Predicate::eval(output_row))
 			{
@@ -23,6 +23,12 @@ namespace ra
 
 			return output_row;
 		}
+
+	private:
+		static output_type output_row;
 	};
+
+	template <typename Output, typename Input>
+	typename selection<Output, Input>::output_type selection<Output, Input>::output_row{};
 
 } // namespace ra
