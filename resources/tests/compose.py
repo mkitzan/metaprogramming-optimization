@@ -3,7 +3,7 @@
 begin = """#include <iostream>
 
 #include "data.hpp"
-#include "sql/query.hpp
+#include "sql/query.hpp"
 
 using query =
 	sql::query<
@@ -53,8 +53,8 @@ def func(ts, cs):
 	body += "\n\tfor (query q{ " + args[:-2] + " }; auto const& ["
 	for c in range(cs):
 		body += "c" + str(c) + ", "
-		out += "c" + str(c) + " << \'\\t\' << "
-	body = body[:-2] + "] : q)\n\t{\n\t" + out[:-12] + " << \'\\n\';\n\t}\n"
+		out += "c" + str(c) + " << \'|\' << "
+	body = body[:-2] + "] : q)\n\t{\n\t" + out[:-11] + " << \'\\n\';\n\t}\n"
 	return body
 
 def main():
@@ -66,11 +66,7 @@ def main():
 	spec = templ(query, ts)
 	body = func(ts, cs)
 	outfile = open("test.cpp", "w")
-	outfile.write(begin)
-	outfile.write(spec)
-	outfile.write(middle)
-	outfile.write(body)
-	outfile.write(end)
+	outfile.write(begin + spec + middle + body + end)
 	outfile.close()
 
 if __name__ == "__main__":
