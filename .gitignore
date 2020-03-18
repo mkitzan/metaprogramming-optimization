@@ -1,3 +1,2 @@
-resources/tests/all-queries.txt
-resources/tests/test-queries.txt
-resources/tests/query.txt
+resources/tests/*.txt
+resource/tests/test.cpp
