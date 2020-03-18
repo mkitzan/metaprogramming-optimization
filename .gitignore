@@ -1,2 +1,3 @@
 resources/tests/*.txt
-resource/tests/test.cpp
+resources/tests/test.cpp
+

@@ -113,7 +113,7 @@ namespace sql
 
 		constexpr bool iscomp(std::string_view const& tv) noexcept
 		{
-			return tv == "=" || tv == "!=" || tv == "<>" || tv[0] == '<' || tv[0] == '>';
+			return tv[0] == '=' || tv[0] == '!' || tv[0] == '<' || tv[0] == '>';
 		}
 
 		constexpr bool islogical(std::string_view const& tv) noexcept
@@ -189,8 +189,7 @@ namespace sql
 			}
 			else if constexpr (tokens_[Pos] == "\'" || tokens_[Pos] == "\"")
 			{
-				constexpr auto pos{ Pos + 1 % tokens_.count() };
-				constexpr cexpr::string<char, tokens_[pos].length() + 1> name{ tokens_[pos] };
+				constexpr cexpr::string<char, tokens_[Pos + 1].length() + 1> name{ tokens_[Pos + 1] };
 
 				return TreeNode<Pos + 3, sql::constant<value<decltype(name)>{ name }, Row>>{};
 			}
@@ -213,15 +212,14 @@ namespace sql
 		template <typename Left, typename Row>
 		static constexpr auto recurse_comp() noexcept
 		{
-			if constexpr (!iscomp(tokens_[Left::pos % tokens_.count()]))
+			if constexpr (!iscomp(tokens_[Left::pos]))
 			{
 				return Left{};
 			}
 			else
 			{
 				constexpr auto right{ parse_terms<Left::pos + 1, Row>() };
-				constexpr auto pos{ Left::pos % tokens_.count() };
-				constexpr cexpr::string<char, tokens_[pos].length() + 1> name{ tokens_[pos] };
+				constexpr cexpr::string<char, tokens_[Left::pos].length() + 1> name{ tokens_[Left::pos] };
 				constexpr auto node{ sql::operation<name, Row, typename Left::node, typename decltype(right)::node>{} };
 
 				return TreeNode<right.pos, std::remove_cvref_t<decltype(node)>>{};
@@ -244,8 +242,7 @@ namespace sql
 			if constexpr (tokens_[Pos] == "not" || tokens_[Pos] == "NOT")
 			{
 				constexpr auto expr{ parse_comp<Pos + 1, Row>() };
-				constexpr auto pos{ Pos % tokens_.count() };
-				constexpr cexpr::string<char, tokens_[pos].length() + 1> name{ tokens_[pos] };
+				constexpr cexpr::string<char, tokens_[Pos].length() + 1> name{ tokens_[Pos] };
 
 				return TreeNode<expr.pos, sql::operation<name, Row, typename decltype(expr)::node>>{};
 			}
@@ -259,15 +256,14 @@ namespace sql
 		template <typename Left, typename Row>
 		static constexpr auto recurse_logical() noexcept
 		{
-			if constexpr (!islogical(tokens_[Left::pos % tokens_.count()]))
+			if constexpr (!islogical(tokens_[Left::pos]))
 			{
 				return Left{};
 			}
 			else
 			{
 				constexpr auto right{ parse_negation<Left::pos + 1, Row>() };
-				constexpr auto pos{ Left::pos % tokens_.count() };
-				constexpr cexpr::string<char, tokens_[pos].length() + 1> name{ tokens_[pos] };
+				constexpr cexpr::string<char, tokens_[Left::pos].length() + 1> name{ tokens_[Left::pos] };
 				constexpr auto node{ sql::operation<name, Row, typename Left::node, typename decltype(right)::node>{} };
 
 				return recurse_logical<TreeNode<right.pos, std::remove_cvref_t<decltype(node)>>, Row>();
@@ -370,8 +366,7 @@ namespace sql
 		template <std::size_t Pos>
 		static constexpr auto column_type() noexcept
 		{
-			constexpr auto pos{ Pos % tokens_.count() };
-			constexpr cexpr::string<char, tokens_[pos].length() + 1> name{ tokens_[pos] };
+			constexpr cexpr::string<char, tokens_[Pos].length() + 1> name{ tokens_[Pos] };
 
 			return recurse_types<name, Schemas...>();
 		}

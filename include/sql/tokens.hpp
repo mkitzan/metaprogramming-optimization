@@ -28,29 +28,31 @@ namespace sql
 		template <typename CharT>
 		constexpr const CharT* skip(const CharT *curr, const CharT *end)
 		{
-			for (; curr < end && whitespace(*curr); ++curr);
+			for (; curr != end && whitespace(*curr); ++curr);
 			return curr;
 		}
 
 		template <typename CharT>
 		constexpr const CharT* next(const CharT *curr, const CharT *end)
 		{
-			if (*curr == CharT{ '>' } || *curr == CharT{ '<' })
+			CharT c{ *curr };
+
+			if (c == CharT{ '>' } || c == CharT{ '<' } || c == CharT{ '!' })
 			{
 				++curr;
 
-				if (*curr == CharT{ '=' })
+				if (*curr == CharT{ '=' } || (c == CharT{ '<' } && *curr == CharT{ '>' }))
 				{
 					++curr;
 				}
 			}
-			else if (syntax(*curr))
+			else if (syntax(c))
 			{
 				++curr;
 			}
 			else
 			{
-				for (; curr < end && !whitespace(*curr) && !syntax(*curr); ++curr);
+				for (; curr != end && !whitespace(*curr) && !syntax(*curr); ++curr);
 			}
 			
 			return curr;
@@ -77,7 +79,7 @@ namespace sql
 				last = curr;
 				last = next(last, end);
 
-				if (*curr == '\"' || *curr == '\'')
+				if (*curr == CharT{ '\"' } || *curr == CharT{ '\'' })
 				{
 					tokens_[i++] = token_view{ curr, 1 };
 					for (char c{ *curr++ }; last != end && *last != c; ++last);
@@ -86,7 +88,7 @@ namespace sql
 				auto len{ reinterpret_cast<std::size_t>(last) - reinterpret_cast<std::size_t>(curr) };
 				tokens_[i++] = token_view{ curr, len };
 
-				if (*last == '\"' || *last == '\'')
+				if (*last == CharT{ '\"' } || *last == CharT{ '\'' })
 				{
 					tokens_[i++] = token_view{ last, 1 };
 					++last;
@@ -137,7 +139,7 @@ namespace sql
 	{
 		auto begin{ cs.cbegin() };
 		const auto end{ cs.cend() };
-		std::size_t count{ 0 };
+		std::size_t count{ 1 };
 
 		while (begin < end)
 		{
