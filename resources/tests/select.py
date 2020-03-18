@@ -1,9 +1,9 @@
-# Randomly selects ~500 queries to test from the 4mil query set
+# Randomly selects ~500 queries to test from the 1.4mil query set
 
 import random
 
 def main():
-	h = 500 / 4000000
+	h = 500 / 1380000
 	outfile = open("test-queries.txt", "w")
 	with open("all-queries.txt", "r") as infile:
 		for line in infile:

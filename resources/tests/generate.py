@@ -1,7 +1,8 @@
 # SQL query generator for test queries
-# Generates over 4 million unique queries
+# Generates over 1.4 million unique queries
 
 import itertools
+import random
 
 tables = ["books", "stories", "authored", "collected"]
 columns = {
@@ -16,7 +17,7 @@ joinable = {
 	"authored": [],
 	"collected": []
 }
-joins = ["cross", "CROSS", "natural", "NATURAL"]
+joins = ["cross", "natural"]
 renames = {
 	"genre": "type",
 	"year": "published",
@@ -24,7 +25,8 @@ renames = {
 integral = ["year", "pages"]
 all_comp = ["=", "!=", "<>"]
 integral_comp = [">", "<", ">=", "<="]
-bool_op = ["or", "OR", "and", "AND", "NOT", "not"]
+bool_op = ["or", "and"]
+negate_op = ["", "not "]
 where_data = {
 	"name": ["Harlan Elison"],
 	"year": [1970],
@@ -59,6 +61,8 @@ def froms(ts):
 		f = [ts[0]]
 	else:
 		for j in joins:
+			if random.random() < 0.3333:
+				j = j.upper()
 			f += [ts[0] + " " + j + " join " + ts[1]]
 	return f
 
@@ -87,6 +91,8 @@ def predicate(ts, cs, ci, pred):
 		compose(ts, cs, pred)
 	else:
 		for op in bool_op:
+			if random.random() < 0.3333:
+				op = op.upper()
 			p = pred + " " + op + " "
 			operation(ts, cs, ci, p)
 
@@ -96,15 +102,18 @@ def operation(ts, cs, ci, pred):
 	ops += all_comp
 	if c in integral:
 		ops += integral_comp
-	for op in ops:
-		for data in where_data[c]:
-			p = pred
-			p += c + " " + op + " "
-			if type(data) is str:
-				p += "\"" + data + "\""
-			else:
-				p += str(data)
-			predicate(ts, cs, ci + 1, p)
+	for nop in negate_op:
+		for op in ops:
+			for data in where_data[c]:
+				if random.random() < 0.3333:
+					nop = nop.upper()
+				p = pred
+				p += nop + c + " " + op + " "
+				if type(data) is str:
+					p += "\\\"" + data + "\\\""
+				else:
+					p += str(data)
+				predicate(ts, cs, ci + 1, p)
 
 def select(ts):
 	cols = []

@@ -94,57 +94,57 @@ namespace sql
 		container table_;
 	};
 
-	
-namespace
-{
-
-	template <typename Row, char Delim>
-	void fill(std::fstream& file, Row& row)
+	namespace
 	{
-		if constexpr (!std::is_same_v<Row, sql::void_row>)
+
+		template <typename Row, char Delim>
+		void fill(std::fstream& file, Row& row)
 		{
-			if constexpr (std::is_same_v<typename Row::column::type, std::string>)
+			if constexpr (!std::is_same_v<Row, sql::void_row>)
 			{
-				if constexpr (std::is_same_v<typename Row::next, sql::void_row>)
+				if constexpr (std::is_same_v<typename Row::column::type, std::string>)
 				{
-					std::getline(file, row.head());
+					if constexpr (std::is_same_v<typename Row::next, sql::void_row>)
+					{
+						std::getline(file, row.head());
+					}
+					else
+					{
+						std::getline(file, row.head(), Delim);
+					}
 				}
 				else
 				{
-					std::getline(file, row.head(), Delim);
+					file >> row.head();
 				}
-			}
-			else
-			{
-				file >> row.head();
-			}
 
-			fill<typename Row::next, Delim>(file, row.tail());
+				fill<typename Row::next, Delim>(file, row.tail());
+			}
 		}
-	}
 
-} // namespace
+	} // namespace
 
-template <typename Schema, char Delim>
-Schema load(std::string const& data)
-{
-	auto file{ std::fstream(data) };
-	Schema table{};
-	typename Schema::row_type row{};
-
-	while (file)
+	// helper function for users to load a data into a schema from a file
+	template <typename Schema, char Delim>
+	Schema load(std::string const& data)
 	{
-		fill<typename Schema::row_type, Delim>(file, row);
-		table.insert(std::move(row));
+		auto file{ std::fstream(data) };
+		Schema table{};
+		typename Schema::row_type row{};
 
-		// in case last stream extraction did not remove newline
-		if (file.get() != '\n')
+		while (file)
 		{
-			file.unget();
-		}
-	}
+			fill<typename Schema::row_type, Delim>(file, row);
+			table.insert(std::move(row));
 
-	return table;
-}
+			// in case last stream extraction did not remove newline
+			if (file.get() != '\n')
+			{
+				file.unget();
+			}
+		}
+
+		return table;
+	}
 
 } // namespace sql
