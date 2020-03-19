@@ -52,15 +52,15 @@ namespace sql
 			{
 				return Left::eval(row) != Right::eval(row);
 			}
-			else if constexpr(Op == "and" || Op == "AND")
+			else if constexpr(Op == "AND")
 			{
 				return Left::eval(row) && Right::eval(row);
 			}
-			else if constexpr(Op == "or" || Op == "OR")
+			else if constexpr(Op == "OR")
 			{
 				return Left::eval(row) || Right::eval(row);
 			}
-			else if constexpr(Op == "not" || Op == "NOT")
+			else if constexpr(Op == "NOT")
 			{
 				return !Left::eval(row);
 			}

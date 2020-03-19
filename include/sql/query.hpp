@@ -116,9 +116,14 @@ namespace sql
 			return tv[0] == '=' || tv[0] == '!' || tv[0] == '<' || tv[0] == '>';
 		}
 
-		constexpr bool islogical(std::string_view const& tv) noexcept
+		constexpr bool isor(std::string_view const& tv) noexcept
 		{
-			return tv == "or" || tv == "OR" || tv == "and" || tv == "AND";
+			return tv == "or" || tv == "OR";
+		}
+
+		constexpr bool isand(std::string_view const& tv) noexcept
+		{
+			return tv == "and" || tv == "AND";
 		}
 
 	} // namespace
@@ -183,7 +188,7 @@ namespace sql
 		{
 			if constexpr (tokens_[Pos] == "(")
 			{
-				constexpr auto expr{ parse_logical<Pos + 1, Row>() };
+				constexpr auto expr{ parse_or<Pos + 1, Row>() };
 
 				return TreeNode<expr.pos + 1, typename decltype(expr)::node>{};
 			}
@@ -242,9 +247,8 @@ namespace sql
 			if constexpr (tokens_[Pos] == "not" || tokens_[Pos] == "NOT")
 			{
 				constexpr auto expr{ parse_comp<Pos + 1, Row>() };
-				constexpr cexpr::string<char, tokens_[Pos].length() + 1> name{ tokens_[Pos] };
 
-				return TreeNode<expr.pos, sql::operation<name, Row, typename decltype(expr)::node>>{};
+				return TreeNode<expr.pos, sql::operation<"NOT", Row, typename decltype(expr)::node>>{};
 			}
 			else
 			{
@@ -252,31 +256,56 @@ namespace sql
 			}
 		}
 
-		// recursively parse chained boolean operations
+		// recursively parse chained AND operations
 		template <typename Left, typename Row>
-		static constexpr auto recurse_logical() noexcept
+		static constexpr auto recurse_and() noexcept
 		{
-			if constexpr (!islogical(tokens_[Left::pos]))
+			if constexpr (!isand(tokens_[Left::pos]))
 			{
 				return Left{};
 			}
 			else
 			{
 				constexpr auto right{ parse_negation<Left::pos + 1, Row>() };
-				constexpr cexpr::string<char, tokens_[Left::pos].length() + 1> name{ tokens_[Left::pos] };
-				constexpr auto node{ sql::operation<name, Row, typename Left::node, typename decltype(right)::node>{} };
+				constexpr auto node{ sql::operation<"AND", Row, typename Left::node, typename decltype(right)::node>{} };
 
-				return recurse_logical<TreeNode<right.pos, std::remove_cvref_t<decltype(node)>>, Row>();
+				return recurse_and<TreeNode<right.pos, std::remove_cvref_t<decltype(node)>>, Row>();
 			}
 		}
 
-		// descend further then attempt to parse boolean operations
+		// descend further then attempt to parse AND operations
 		template <std::size_t Pos, typename Row>
-		static constexpr auto parse_logical() noexcept
+		static constexpr auto parse_and() noexcept
 		{
 			constexpr auto left{ parse_negation<Pos, Row>() };
 			
-			return recurse_logical<decltype(left), Row>();
+			return recurse_and<decltype(left), Row>();
+		}
+		
+		// recursively parse chained OR operations
+		template <typename Left, typename Row>
+		static constexpr auto recurse_or() noexcept
+		{
+			if constexpr (!isor(tokens_[Left::pos]))
+			{
+				return Left{};
+			}
+			else
+			{
+				constexpr auto right{ parse_and<Left::pos + 1, Row>() };
+				constexpr auto node{ sql::operation<"OR", Row, typename Left::node, typename decltype(right)::node>{} };
+
+				return recurse_or<TreeNode<right.pos, std::remove_cvref_t<decltype(node)>>, Row>();
+			}
+		}
+
+		// descend further then attempt to parse OR operations
+		template <std::size_t Pos, typename Row>
+		static constexpr auto parse_or() noexcept
+		{
+			constexpr auto left{ parse_and<Pos, Row>() };
+			
+			return recurse_or<decltype(left), Row>();
 		}
 
 		// find correct schema for terminal relation
@@ -338,7 +367,7 @@ namespace sql
 
 			if constexpr (root.pos + 1 < tokens_.count() && (tokens_[root.pos] == "where" || tokens_[root.pos] == "WHERE"))
 			{
-				constexpr auto predicate{ parse_logical<root.pos + 1, std::remove_cvref_t<typename decltype(root)::node::output_type>>() };
+				constexpr auto predicate{ parse_or<root.pos + 1, std::remove_cvref_t<typename decltype(root)::node::output_type>>() };
 				
 				return ra::selection<typename decltype(predicate)::node, typename decltype(root)::node>{};
 			}

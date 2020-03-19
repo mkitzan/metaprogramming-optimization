@@ -8,7 +8,7 @@
 using books =
 	sql::schema<
 		sql::index<>,
-		sql::column<"title", std::string>,
+		sql::column<"book", std::string>,
 		sql::column<"genre", std::string>,
 		sql::column<"year", unsigned>,
 		sql::column<"pages", unsigned>
@@ -17,7 +17,7 @@ using books =
 using stories =
 	sql::schema<
 		sql::index<>,
-		sql::column<"title", std::string>,
+		sql::column<"story", std::string>,
 		sql::column<"genre", std::string>,
 		sql::column<"year", unsigned>
 	>;

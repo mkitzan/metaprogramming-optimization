@@ -6,8 +6,8 @@ import random
 
 tables = ["books", "stories", "authored", "collected"]
 columns = {
-	"books": ["title", "genre", "year", "pages"],
-	"stories": ["title", "genre", "year"],
+	"books": ["book", "genre", "year", "pages"],
+	"stories": ["story", "genre", "year"],
 	"authored": ["title", "name"],
 	"collected": ["title", "collection", "pages"]
 }
