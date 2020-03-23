@@ -11,13 +11,13 @@ def main():
 			if random.random() < h:
 				outfile.write(line)				
 	h = 500 / 700000
-	outfile.write("CROSS\n")
-	with open("cross-queries.txt", "r") as infile:
-		for line in infile:
-			if random.random() < h:
-				outfile.write(line)
 	outfile.write("NATURAL\n")
 	with open("natural-queries.txt", "r") as infile:
+		for line in infile:
+			if random.random() < h:
+				outfile.write(line)				
+	outfile.write("CROSS\n")
+	with open("cross-queries.txt", "r") as infile:
 		for line in infile:
 			if random.random() < h:
 				outfile.write(line)
