@@ -6,8 +6,10 @@ import random
 
 tables = ["books", "stories", "authored", "collected"]
 columns = {
-	"books": ["book", "genre", "year", "pages"],
-	"stories": ["story", "genre", "year"],
+	# "books": ["book", "genre", "year", "pages"],
+	"books": ["title", "genre", "year", "pages"],
+	# "stories": ["story", "genre", "year"],
+	"stories": ["title", "genre", "year"],
 	"authored": ["title", "name"],
 	"collected": ["title", "collection", "pages"]
 }
@@ -17,10 +19,11 @@ joinable = {
 	"authored": [],
 	"collected": []
 }
-joins = ["cross", "natural"]
+# joins = ["cross"]
+joins = ["natural"]
 renames = {
 	"genre": "type",
-	"year": "published",
+	"year": "published"
 }
 integral = ["year", "pages"]
 all_comp = ["=", "!=", "<>"]
@@ -33,8 +36,11 @@ where_data = {
 	"pages": [300],
 	"genre": ["science fiction"]
 }
-
-query_output = open("all-queries.txt", "w")
+outfiles = {
+	"joinless": open("joinless-queries.txt", "w"),
+	# "cross": open("cross-queries.txt", "w"),
+	"natural": open("natural-queries.txt", "w")
+}
 
 def col_list(cs):
 	cl = []
@@ -57,23 +63,25 @@ def col_list(cs):
 
 def froms(ts):
 	f = []
+	output = outfiles["joinless"]
 	if len(ts) == 1:
 		f = [ts[0]]
 	else:
 		for j in joins:
+			output = outfiles[j]
 			if random.random() < 0.3333:
 				j = j.upper()
 			f += [ts[0] + " " + j + " join " + ts[1]]
-	return f
+	return f, output
 
 def compose(ts, cs, pred):
 	if pred != "":
 		pred = " where " + pred
 	cols = col_list(cs)
-	sel = froms(ts)
+	sel, output = froms(ts)
 	for s in sel:
 		for c in cols:
-			query_output.write("select " + c + " from " + s + pred + "\n")
+			output.write("select " + c + " from " + s + pred + "\n")
 
 def next(cs, ci):
 	if ci >= len(cs):
@@ -139,4 +147,6 @@ def main():
 
 if __name__ == "__main__":
 	main()
-	query_output.close()
+	outfiles["joinless"].close()
+	# outfiles["cross"].close()
+	outfiles["natural"].close()
