@@ -4,13 +4,14 @@ import random
 
 def main():
 	outfile = open("test-queries.txt", "w")
-	h = 100 / 23000
+	#h = 100 / 23000
+	h = 1.0
 	outfile.write("JOINLESS\n")
 	with open("joinless-queries.txt", "r") as infile:
 		for line in infile:
 			if random.random() < h:
 				outfile.write(line)				
-	h = 500 / 700000
+	#h = 500 / 700000
 	outfile.write("NATURAL\n")
 	with open("natural-queries.txt", "r") as infile:
 		for line in infile:
