@@ -2,8 +2,7 @@
 #include <string>
 #include <vector>
 
-#include "sql/query.hpp"
-#include "sql/schema.hpp"
+#include "sql.hpp"
 
 namespace
 {

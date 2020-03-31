@@ -41,4 +41,3 @@ namespace sql
 	};
 
 } // namespace sql
-
