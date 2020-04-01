@@ -6,10 +6,8 @@ import random
 
 tables = ["books", "stories", "authored", "collected"]
 columns = {
-	# "books": ["book", "genre", "year", "pages"],
-	"books": ["title", "genre", "year", "pages"],
-	# "stories": ["story", "genre", "year"],
-	"stories": ["title", "genre", "year"],
+	"books": ["book", "genre", "year", "pages"],
+	"stories": ["story", "genre", "year"],
 	"authored": ["title", "name"],
 	"collected": ["title", "collection", "pages"]
 }
@@ -19,8 +17,7 @@ joinable = {
 	"authored": [],
 	"collected": []
 }
-# joins = ["cross"]
-joins = ["natural"]
+joins = ["cross"]
 renames = {
 	"genre": "type",
 	"year": "published"
@@ -36,10 +33,9 @@ where_data = {
 	"pages": [300],
 	"genre": ["science fiction"]
 }
-outfiles = {
-	"joinless": open("joinless-queries.txt", "w"),
-	# "cross": open("cross-queries.txt", "w"),
-	"natural": open("natural-queries.txt", "w")
+outfiles = { 
+	"joinless": open("queries/joinless-queries.txt", "w"),
+	"cross": open("queries/cross-queries.txt", "w") 
 }
 
 def col_list(cs):
@@ -147,6 +143,19 @@ def main():
 
 if __name__ == "__main__":
 	main()
-	outfiles["joinless"].close()
-	# outfiles["cross"].close()
-	outfiles["natural"].close()
+	for file in outfiles.keys():
+		outfiles[file].close()
+	joins = ["natural"]
+	outfiles = {
+		"joinless": open("queries/joinless-queries.txt", "w"),
+		"natural": open("queries/natural-queries.txt", "w")
+	}
+	columns = {
+		"books": ["title", "genre", "year", "pages"],
+		"stories": ["title", "genre", "year"],
+		"authored": ["title", "name"],
+		"collected": ["title", "collection", "pages"]
+	}
+	main()
+	for file in outfiles.keys():
+		outfiles[file].close()
