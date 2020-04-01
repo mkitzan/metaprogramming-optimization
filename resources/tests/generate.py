@@ -34,8 +34,8 @@ where_data = {
 	"genre": ["science fiction"]
 }
 outfiles = { 
-	"joinless": open("queries/joinless-queries.txt", "w"),
-	"cross": open("queries/cross-queries.txt", "w") 
+	"joinless": open("joinless-queries.txt", "w"),
+	"cross": open("cross-queries.txt", "w") 
 }
 
 def col_list(cs):
@@ -147,8 +147,8 @@ if __name__ == "__main__":
 		outfiles[file].close()
 	joins = ["natural"]
 	outfiles = {
-		"joinless": open("queries/joinless-queries.txt", "w"),
-		"natural": open("queries/natural-queries.txt", "w")
+		"joinless": open("joinless-queries.txt", "w"),
+		"natural": open("natural-queries.txt", "w")
 	}
 	columns = {
 		"books": ["title", "genre", "year", "pages"],
