@@ -1,4 +1,4 @@
-# Metaprogramming Optimization [Temporarily Public]
+# Metaprogramming Optimization
 Investigating the benefits and applications of compile time metaprogramming.
  
 ## Hi, GPU Compiler folks!
