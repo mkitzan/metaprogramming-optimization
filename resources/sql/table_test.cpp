@@ -9,6 +9,7 @@ namespace
 
 	using left_schema =
 		sql::schema<
+			"left",
 			sql::index<>,
 			sql::column<"id", int>,
 			sql::column<"name", std::string>,
@@ -16,6 +17,7 @@ namespace
 		>;
 	using right_schema =
 		sql::schema<
+			"right",
 			sql::index<>,
 			sql::column<"id", int>,
 			sql::column<"attr", std::string>
@@ -23,7 +25,7 @@ namespace
 	using query =
 		sql::query<
 			"select id as year, balance, name as comment, attr "
-			"from T0 natural join T1 "
+			"from left natural join right "
 			"where id >= 1945 and not balance < 1500.0",
 			left_schema,
 			right_schema

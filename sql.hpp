@@ -1,15 +1,15 @@
+#include <array>
+#include <cstddef>
+#include <exception>
+#include <fstream>
+#include <locale>
 #include <set>
 #include <string>
 #include <string_view>
-#include <locale>
-#include <cstddef>
-#include <fstream>
 #include <type_traits>
-#include <vector>
-#include <utility>
 #include <unordered_map>
-#include <exception>
-#include <array>
+#include <utility>
+#include <vector>
 
 namespace cexpr
 {
@@ -20,15 +20,16 @@ namespace cexpr
 	public:
 		using char_type = CharT;
 
-	constexpr string() : size_{ 0 }, string_{ 0 } {}
+		constexpr string() : size_{ 0 }, string_{ 0 }
+		{}
 
-	constexpr string(const CharT(&s)[N]) : string{}
-	{
-		for(; s[size_]; ++size_)
+		constexpr string(const CharT(&s)[N]) : string{}
 		{
-			string_[size_] = s[size_];
+			for(; s[size_]; ++size_)
+			{
+				string_[size_] = s[size_];
+			}
 		}
-	}
 
 		constexpr string(cexpr::string<CharT, N> const& s) : string{}
 		{
@@ -62,82 +63,82 @@ namespace cexpr
 			}
 		}
 
-	constexpr std::size_t capacity() const noexcept
-	{ 
-		return N - 1;
-	}
-
-	constexpr std::size_t size() const noexcept
-	{
-		return size_;
-	}
-
-	constexpr CharT* begin() noexcept
-	{
-		return string_;
-	}
-	constexpr const CharT* cbegin() const noexcept
-	{
-		return string_;
-	}
-
-	constexpr CharT* end() noexcept
-	{
-		return &string_[size_];
-	}
-	constexpr const CharT* cend() const noexcept
-	{
-		return &string_[size_];
-	}
-
-	constexpr CharT& operator[](std::size_t i) noexcept
-	{
-		return string_[i];
-	}
-	constexpr CharT const& operator[](std::size_t i) const noexcept
-	{
-		return string_[i];
-	}
-
-	template <typename OtherCharT, std::size_t OtherN>
-	constexpr bool operator==(string<OtherCharT, OtherN> const& other) const
-	{
-		if constexpr (N != OtherN)
-		{
-			return false;
+		constexpr std::size_t capacity() const noexcept
+		{ 
+			return N - 1;
 		}
 
-		std::size_t i{};
-		for (; i < N && string_[i] == other[i]; ++i);
-
-		return i == N;
-	}
-
-	template <typename OtherCharT, std::size_t OtherN>
-	constexpr bool operator==(const OtherCharT(&other)[OtherN]) const
-	{
-		if constexpr (N != OtherN)
+		constexpr std::size_t size() const noexcept
 		{
-			return false;
+			return size_;
 		}
 
-		std::size_t i{};
-		for (; i < N && string_[i] == other[i]; ++i);
+		constexpr CharT* begin() noexcept
+		{
+			return string_;
+		}
+		constexpr const CharT* cbegin() const noexcept
+		{
+			return string_;
+		}
 
-		return i == N;
-	}
+		constexpr CharT* end() noexcept
+		{
+			return &string_[size_];
+		}
+		constexpr const CharT* cend() const noexcept
+		{
+			return &string_[size_];
+		}
 
-	template <typename OtherCharT>
-	bool operator==(std::basic_string<OtherCharT> const& other) const
-	{
-		return other == string_;
-	}
+		constexpr CharT& operator[](std::size_t i) noexcept
+		{
+			return string_[i];
+		}
+		constexpr CharT const& operator[](std::size_t i) const noexcept
+		{
+			return string_[i];
+		}
 
-	template <typename OtherCharT>
-	bool operator!=(std::basic_string<OtherCharT> const& other) const
-	{
-		return !(other == string_);
-	}
+		template <typename OtherCharT, std::size_t OtherN>
+		constexpr bool operator==(string<OtherCharT, OtherN> const& other) const
+		{
+			if constexpr (N != OtherN)
+			{
+				return false;
+			}
+
+			std::size_t i{};
+			for (; i < N && string_[i] == other[i]; ++i);
+
+			return i == N;
+		}
+
+		template <typename OtherCharT, std::size_t OtherN>
+		constexpr bool operator==(const OtherCharT(&other)[OtherN]) const
+		{
+			if constexpr (N != OtherN)
+			{
+				return false;
+			}
+
+			std::size_t i{};
+			for (; i < N && string_[i] == other[i]; ++i);
+
+			return i == N;
+		}
+
+		template <typename OtherCharT>
+		bool operator==(std::basic_string<OtherCharT> const& other) const
+		{
+			return other == string_;
+		}
+
+		template <typename OtherCharT>
+		bool operator!=(std::basic_string<OtherCharT> const& other) const
+		{
+			return !(other == string_);
+		}
 
 	private:
 		CharT string_[N];
@@ -168,6 +169,7 @@ namespace sql
 	struct column
 	{
 		static constexpr auto name{ Name };
+		
 		using type = Type;
 	};
 
@@ -193,6 +195,10 @@ namespace sql
 
 		template <typename... ColTs>
 		row(column::type const& val, ColTs const&... vals) : value_{ val }, next_{ vals... }
+		{}
+
+		template <typename... ColTs>
+		row(column::type&& val, ColTs&&... vals) : value_{ std::forward<column::type>(val) }, next_{ std::forward<ColTs>(vals)... }
 		{}
 
 		inline constexpr next const& tail() const
@@ -339,10 +345,12 @@ namespace sql
 namespace sql
 {
 
-	template <typename Index, typename... Cols>
+	template <cexpr::string Name, typename Index, typename... Cols>
 	class schema
 	{
 	public:
+		static constexpr auto name{ Name };
+
 		using row_type = sql::variadic_row<Cols...>::row_type;
 		using container = typename
 			std::conditional_t<
@@ -351,7 +359,7 @@ namespace sql
 				std::multiset<row_type, typename Index::template comp<row_type>>
 			>;
 		using const_iterator = typename container::const_iterator;
-
+		
 		schema() = default;
 
 		template <typename T, typename... Ts>
@@ -363,7 +371,7 @@ namespace sql
 		template <typename T, typename... Ts>
 		schema(std::vector<T>&& col, Ts&&... cols) : schema{}
 		{
-			insert(std::forward<T>(col), std::forward<Ts...>(cols...));
+			insert(std::forward<T>(col), std::forward<Ts>(cols)...);
 		}
 
 		template <typename... Ts>
@@ -375,7 +383,7 @@ namespace sql
 		template <typename... Ts>
 		inline void emplace(Ts&&... vals)
 		{
-			table_.emplace_back(std::forward<Ts...>(vals...));
+			table_.emplace_back(vals...);
 		}
 
 		template <typename T, typename... Ts>
@@ -392,7 +400,7 @@ namespace sql
 		{
 			for (std::size_t i{}; i < col.size(); ++i)
 			{
-				emplace(std::forward<T>(col[i]), std::forward<Ts...>(cols[i]...));
+				emplace(std::forward<T>(col[i]),std::forward<Ts>(cols[i])...);
 			}
 		}
 
@@ -595,7 +603,9 @@ namespace ra
 			}
 			else
 			{
-				return sql::row<typename Left::column, decltype(recr_merge<typename Left::next, Right>())>{};
+				using next = decltype(recr_merge<typename Left::next, Right>());
+
+				return sql::row<typename Left::column, next>{};
 			}
 		}
 
@@ -1271,28 +1281,37 @@ namespace sql
 		{
 			if constexpr (tokens_[Pos] == "(")
 			{
-				constexpr auto expr{ parse_or<Pos + 1, Row>() };
+				constexpr auto next{ parse_or<Pos + 1, Row>() };
 
-				return TreeNode<expr.pos + 1, typename decltype(expr)::node>{};
+				using node = typename decltype(next)::node;
+
+				return TreeNode<next.pos + 1, node>{};
 			}
 			else if constexpr (tokens_[Pos] == "\'" || tokens_[Pos] == "\"")
 			{
 				constexpr cexpr::string<char, tokens_[Pos + 1].length() + 1> name{ tokens_[Pos + 1] };
 
-				return TreeNode<Pos + 3, sql::constant<value<decltype(name)>{ name }, Row>>{};
+				using str = decltype(name);
+				using node = sql::constant<value<str>{ name }, Row>;
+
+				return TreeNode<Pos + 3, node>{};
 			}
 			else if constexpr (isdigit(tokens_[Pos][0]))
 			{
 				constexpr cexpr::string<char, tokens_[Pos].length() + 1> name{ tokens_[Pos] };
-				constexpr auto val{ isintegral(tokens_[Pos]) ? std::int64_t{} : double{} };
+				
+				using val = decltype(isintegral(tokens_[Pos]) ? std::int64_t{} : double{});
+				using node = sql::constant<sql::convert<val>(name), Row>;
 
-				return TreeNode<Pos + 1, sql::constant<sql::convert<std::remove_const_t<decltype(val)>>(name), Row>>{};
+				return TreeNode<Pos + 1, node>{};
 			}
 			else
 			{
 				constexpr cexpr::string<char, tokens_[Pos].length() + 1> name{ tokens_[Pos] };
 
-				return TreeNode<Pos + 1, sql::variable<name, Row>>{};
+				using node = sql::variable<name, Row>;
+
+				return TreeNode<Pos + 1, node>{};
 			}
 		}
 
@@ -1306,11 +1325,13 @@ namespace sql
 			}
 			else
 			{
-				constexpr auto right{ parse_terms<Left::pos + 1, Row>() };
+				constexpr auto next{ parse_terms<Left::pos + 1, Row>() };
 				constexpr cexpr::string<char, tokens_[Left::pos].length() + 1> name{ tokens_[Left::pos] };
-				constexpr auto node{ sql::operation<name, Row, typename Left::node, typename decltype(right)::node>{} };
 
-				return TreeNode<right.pos, std::remove_cvref_t<decltype(node)>>{};
+				using ranode = typename decltype(next)::node;
+				using node = sql::operation<name, Row, typename Left::node, ranode>;
+
+				return TreeNode<next.pos, node>{};
 			}			
 		}
 
@@ -1318,9 +1339,9 @@ namespace sql
 		template <std::size_t Pos, typename Row>
 		static constexpr auto parse_comp() noexcept
 		{
-			constexpr auto left{ parse_terms<Pos, Row>() };
+			using left = decltype(parse_terms<Pos, Row>());
 			
-			return recurse_comp<decltype(left), Row>();
+			return recurse_comp<left, Row>();
 		}
 
 		// attempt to parse a negation operation then descend further
@@ -1329,9 +1350,12 @@ namespace sql
 		{
 			if constexpr (tokens_[Pos] == "not" || tokens_[Pos] == "NOT")
 			{
-				constexpr auto expr{ parse_comp<Pos + 1, Row>() };
+				constexpr auto next{ parse_comp<Pos + 1, Row>() };
 
-				return TreeNode<expr.pos, sql::operation<"NOT", Row, typename decltype(expr)::node>>{};
+				using ranode = typename decltype(next)::node;
+				using node = sql::operation<"NOT", Row, ranode>;
+
+				return TreeNode<next.pos, node>{};
 			}
 			else
 			{
@@ -1349,10 +1373,12 @@ namespace sql
 			}
 			else
 			{
-				constexpr auto right{ parse_negation<Left::pos + 1, Row>() };
-				constexpr auto node{ sql::operation<"AND", Row, typename Left::node, typename decltype(right)::node>{} };
+				constexpr auto next{ parse_negation<Left::pos + 1, Row>() };
 
-				return recurse_and<TreeNode<right.pos, std::remove_cvref_t<decltype(node)>>, Row>();
+				using ranode = typename decltype(next)::node;
+				using node = sql::operation<"AND", Row, typename Left::node, ranode>;
+
+				return recurse_and<TreeNode<next.pos, node>, Row>();
 			}
 		}
 
@@ -1360,9 +1386,9 @@ namespace sql
 		template <std::size_t Pos, typename Row>
 		static constexpr auto parse_and() noexcept
 		{
-			constexpr auto left{ parse_negation<Pos, Row>() };
+			using left = decltype(parse_negation<Pos, Row>());
 			
-			return recurse_and<decltype(left), Row>();
+			return recurse_and<left, Row>();
 		}
 		
 		// recursively parse chained OR operations
@@ -1375,10 +1401,12 @@ namespace sql
 			}
 			else
 			{
-				constexpr auto right{ parse_and<Left::pos + 1, Row>() };
-				constexpr auto node{ sql::operation<"OR", Row, typename Left::node, typename decltype(right)::node>{} };
+				constexpr auto next{ parse_and<Left::pos + 1, Row>() };
+				
+				using ranode = typename decltype(next)::node;
+				using node = sql::operation<"OR", Row, typename Left::node, ranode>;
 
-				return recurse_or<TreeNode<right.pos, std::remove_cvref_t<decltype(node)>>, Row>();
+				return recurse_or<TreeNode<next.pos, node>, Row>();
 			}
 		}
 
@@ -1386,30 +1414,45 @@ namespace sql
 		template <std::size_t Pos, typename Row>
 		static constexpr auto parse_or() noexcept
 		{
-			constexpr auto left{ parse_and<Pos, Row>() };
+			using left = decltype(parse_and<Pos, Row>());
 			
-			return recurse_or<decltype(left), Row>();
+			return recurse_or<left, Row>();
 		}
 
 		// find correct schema for terminal relation
-		template <std::size_t Pos, std::size_t Id, typename Schema, typename... Others>
+		template <cexpr::string Name, std::size_t Id, typename Schema, typename... Others>
 		static constexpr auto recurse_schemas()
 		{
-			if constexpr (Pos == 0)
+			if constexpr (Name == Schema::name)
 			{
 				return ra::relation<Schema, Id>{};
 			}
 			else
 			{
-				return recurse_schemas<Pos - 1, Id, Others...>();
+				return recurse_schemas<Name, Id, Others...>();
 			}
 		}
 
-		// wrapper function to determine terminal relation (NOTE: max tables per query is 10 [0-9])
+		// wrapper function to determine terminal relation
 		template <std::size_t Pos>
 		static constexpr auto parse_schema()
 		{
-			return recurse_schemas<tokens_[Pos][1] - '0', Pos, Schemas...>();
+			if constexpr (tokens_[Pos] == "(")
+			{
+				constexpr auto next{ parse_root<Pos + 2>() };
+				
+				using node = typename decltype(next)::node;
+
+				return TreeNode<next.pos + 1, node>{};
+			}
+			else
+			{
+				constexpr cexpr::string<char, tokens_[Pos].length() + 1> name{ tokens_[Pos] };
+
+				using node = decltype(recurse_schemas<name, Pos, Schemas...>());
+
+				return TreeNode<Pos + 1, node>{};
+			}
 		}
 
 		// stub which will choose the specific join RA node
@@ -1430,15 +1473,22 @@ namespace sql
 		template <std::size_t Pos>
 		static constexpr auto parse_join() noexcept
 		{
-			if constexpr (Pos + 3 < tokens_.count() && (tokens_[Pos + 2] == "join" || tokens_[Pos + 2] == "JOIN"))
-			{
-				constexpr auto node{ choose_join<Pos + 1, decltype(parse_schema<Pos>()), decltype(parse_schema<Pos + 3>())>() };
+			constexpr auto lnext{ parse_schema<Pos>() };
 
-				return TreeNode<Pos + 4, decltype(node)>{};
+			using lnode = typename decltype(lnext)::node;
+
+			if constexpr (lnext.pos + 2 < tokens_.count() && (tokens_[lnext.pos + 1] == "join" || tokens_[lnext.pos + 1] == "JOIN"))
+			{
+				constexpr auto rnext{ parse_schema<lnext.pos + 2>() };
+
+				using rnode = typename decltype(rnext)::node;
+				using join = decltype(choose_join<lnext.pos, lnode, rnode>());
+
+				return TreeNode<rnext.pos, join>{};
 			}
 			else
 			{
-				return TreeNode<Pos + 1, decltype(parse_schema<Pos>())>{};
+				return TreeNode<lnext.pos, lnode>{};
 			}
 		}
 
@@ -1446,17 +1496,20 @@ namespace sql
 		template <std::size_t Pos>
 		static constexpr auto parse_from() noexcept
 		{
-			constexpr auto root{ parse_join<Pos>() };
+			constexpr auto next{ parse_join<Pos>() };
 
-			if constexpr (root.pos + 1 < tokens_.count() && (tokens_[root.pos] == "where" || tokens_[root.pos] == "WHERE"))
+			using node = typename decltype(next)::node;
+
+			if constexpr (next.pos + 1 < tokens_.count() && (tokens_[next.pos] == "where" || tokens_[next.pos] == "WHERE"))
 			{
-				constexpr auto predicate{ parse_or<root.pos + 1, std::remove_cvref_t<typename decltype(root)::node::output_type>>() };
-				
-				return ra::selection<typename decltype(predicate)::node, typename decltype(root)::node>{};
+				using output = std::remove_cvref_t<typename node::output_type>;
+				using predicate = typename decltype(parse_or<next.pos + 1, output>())::node;
+
+				return ra::selection<predicate, node>{};
 			}
 			else
 			{
-				return typename decltype(root)::node{};	
+				return node{};	
 			}
 		}
 
@@ -1528,8 +1581,10 @@ namespace sql
 			if constexpr (Rename)
 			{
 				constexpr auto offset{ find_rename<Pos, Pos>() };
+
+				using col = decltype(column_type<Pos>());
 				
-				return ColInfo<decltype(column_type<Pos>()), offset, next>{};
+				return ColInfo<col, offset, next>{};
 			}
 			else
 			{
@@ -1548,11 +1603,13 @@ namespace sql
 			else
 			{
 				constexpr auto info{ parse_colinfo<Pos, Rename>() };
-				constexpr auto child{ recurse_columns<info.next, Rename>() };
 				constexpr cexpr::string<char, tokens_[info.name].length() + 1> name{ tokens_[info.name] };
-				constexpr auto col{ sql::column<name, typename decltype(info)::type>{} };
+				constexpr auto child{ recurse_columns<info.next, Rename>() };
 
-				return TreeNode<child.pos, sql::row<std::remove_const_t<decltype(col)>, std::remove_const_t<typename decltype(child)::node>>>{};
+				using next = std::remove_const_t<typename decltype(child)::node>;
+				using col = std::remove_const_t<decltype(sql::column<name, typename decltype(info)::type>{})>;
+
+				return TreeNode<child.pos, sql::row<col, next>>{};
 			}
 		}
 
@@ -1562,16 +1619,20 @@ namespace sql
 		{
 			constexpr auto projection{ recurse_columns<Pos, false>() };
 
-			return ra::projection<typename decltype(projection)::node, decltype(parse_from<projection.pos + 1>())>{};
+			using node = typename decltype(projection)::node;
+			using next = decltype(parse_from<projection.pos + 1>());
+
+			return ra::projection<node, next>{};
 		}
 
 		// wrapper to parse columns as a rename RA node
 		template <std::size_t Pos>
 		static constexpr auto parse_rename() noexcept
 		{
-			constexpr auto rename{ recurse_columns<Pos, true>() };
+			using node = typename decltype(recurse_columns<Pos, true>())::node;
+			using next = decltype(parse_projection<Pos>());
 
-			return ra::rename<typename decltype(rename)::node, decltype(parse_projection<Pos>())>{};
+			return ra::rename<node, next>{};
 		}
 
 		template <std::size_t Pos>
